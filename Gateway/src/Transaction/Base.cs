@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Clearhaus.Gateway.Transaction
 {
-    public partial class Base
+    public abstract class Base
     {
         public Status status{get; set;}
 

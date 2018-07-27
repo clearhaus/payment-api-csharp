@@ -6,6 +6,8 @@ using RestSharp.Authenticators;
 
 using Newtonsoft.Json;
 
+using Clearhaus.Gateway.Transaction;
+
 namespace Clearhaus.Gateway
 {
     /*
@@ -80,12 +82,12 @@ namespace Clearhaus.Gateway
             return o;
         }
 
-        public Transaction.Authorization NewAuthorization(string amount, string currency, Card cc)
+        public Authorization NewAuthorization(string amount, string currency, Card cc)
         {
             return NewAuthorization(amount, currency, cc, "");
         }
 
-        public Transaction.Authorization NewAuthorization(string amount, string currency, Card cc, string ip)
+        public Authorization NewAuthorization(string amount, string currency, Card cc, string ip)
         {
             var request = new RestRequest
             {
@@ -104,10 +106,10 @@ namespace Clearhaus.Gateway
             request.AddParameter("card[expire_month]", cc.expireMonth);
             request.AddParameter("card[expire_year]", cc.expireYear);
 
-            return performRestRequest<Transaction.Authorization>(request);
+            return performRestRequest<Authorization>(request);
         }
 
-        public Transaction.Void Void(Transaction.Authorization auth)
+        public Transaction.Void Void(Authorization auth)
         {
             return Void(auth.id);
         }
@@ -125,22 +127,22 @@ namespace Clearhaus.Gateway
             return performRestRequest<Transaction.Void>(request);
         }
 
-        public Transaction.Capture Capture(string id)
+        public Capture Capture(string id)
         {
             return Capture(id, "");
         }
 
-        public Transaction.Capture Capture(Transaction.Authorization auth)
+        public Capture Capture(Authorization auth)
         {
             return Capture(auth.id, "");
         }
 
-        public Transaction.Capture Capture(Transaction.Authorization auth, string amount)
+        public Capture Capture(Authorization auth, string amount)
         {
             return Capture(auth.id, amount);
         }
 
-        public Transaction.Capture Capture(string id, string amount)
+        public Capture Capture(string id, string amount)
         {
             var request = new RestRequest{
                 Method   = Method.POST,
@@ -153,10 +155,10 @@ namespace Clearhaus.Gateway
                 request.AddParameter("amount", amount);
             }
 
-            return performRestRequest<Transaction.Capture>(request);
+            return performRestRequest<Capture>(request);
         }
 
-        public Transaction.Refund Refund(string id, string amount)
+        public Refund Refund(string id, string amount)
         {
             var request = new RestRequest{
                 Method   = Method.POST,
@@ -169,32 +171,7 @@ namespace Clearhaus.Gateway
                 request.AddParameter("amount", amount);
             }
 
-            return performRestRequest<Transaction.Refund>(request);
+            return performRestRequest<Refund>(request);
         }
-    }
-
-    public class Card
-    {
-        public Card(string pan, string expireMonth, string expireYear, string csc)
-        {
-            this.pan = pan;
-            this.expireMonth = expireMonth;
-            this.expireYear  = expireYear;
-            this.csc         = csc;
-        }
-
-        public string pan;
-        public string expireMonth;
-        public string expireYear;
-        public string csc;
-    }
-
-    public class Acquirer
-    {
-        [JsonProperty("visa_bin")]
-        public string visaBin {get; set;}
-
-        [JsonProperty("mastercard_bin")]
-        public string mastercardBin {get; set;}
     }
 }
