@@ -18,6 +18,8 @@ namespace Clearhaus.Gateway
     {
         internal string apiKey;
 
+        public string gatewayURL = Constants.GatewayURL;
+
         private HttpStatusCode[] httpSuccessCodes = {
             HttpStatusCode.OK,
             HttpStatusCode.Created
@@ -40,7 +42,7 @@ namespace Clearhaus.Gateway
             try
             {
                 var restClient = new RestClient {
-                    BaseUrl = new Uri(Constants.GatewayTestURL),
+                    BaseUrl = new Uri(gatewayURL),
                     Authenticator = new HttpBasicAuthenticator(this.apiKey, "")
                 };
                 var response = restClient.Execute(request);

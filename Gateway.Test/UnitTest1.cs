@@ -28,6 +28,7 @@ namespace Clearhaus.Gateway.Test
         public void ItValidatesAPIKey()
         {
             var account = new Gateway.Account(getValidAPIKey());
+            account.gatewayURL = Constants.GatewayTestURL;
             Assert.True(account.ValidAPIKey());
         }
 
@@ -35,6 +36,7 @@ namespace Clearhaus.Gateway.Test
         public void ItFetchesAccountInformation()
         {
             var account = new Gateway.Account(getValidAPIKey());
+            account.gatewayURL = Constants.GatewayTestURL;
 
             var info = account.FetchAccountInformation();
 
@@ -45,6 +47,7 @@ namespace Clearhaus.Gateway.Test
         public void ItCreatesAuthorization()
         {
             var account = new Gateway.Account(getValidAPIKey());
+            account.gatewayURL = Constants.GatewayTestURL;
             var card = getStagingCard();
 
             var auth = account.NewAuthorization("100", "DKK", card);
@@ -57,6 +60,7 @@ namespace Clearhaus.Gateway.Test
         public void ItVoidsAuthorization()
         {
             var account = new Gateway.Account(getValidAPIKey());
+            account.gatewayURL = Constants.GatewayTestURL;
             var card = getStagingCard();
 
             var auth = account.NewAuthorization("100", "DKK", card);
@@ -70,6 +74,7 @@ namespace Clearhaus.Gateway.Test
         public void ItCapturesAuthorization()
         {
             var account = new Gateway.Account(getValidAPIKey());
+            account.gatewayURL = Constants.GatewayTestURL;
             var card = getStagingCard();
 
             var auth = account.NewAuthorization("100", "DKK", card);
@@ -83,6 +88,7 @@ namespace Clearhaus.Gateway.Test
         public void ItRefundsAuthorization()
         {
             var account = new Gateway.Account(getValidAPIKey());
+            account.gatewayURL = Constants.GatewayTestURL;
             var card = getStagingCard();
 
             var auth = account.NewAuthorization("100", "DKK", card);
