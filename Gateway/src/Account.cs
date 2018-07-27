@@ -1,11 +1,10 @@
 using System;
-using System.Net;
+using HttpStatusCode = System.Net.HttpStatusCode;
 
 using RestSharp;
 using RestSharp.Authenticators;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Clearhaus.Gateway
 {
