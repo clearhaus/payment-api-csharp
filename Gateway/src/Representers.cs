@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+
 namespace Clearhaus.Gateway
 {
     public class AccountInfo
@@ -39,5 +40,18 @@ namespace Clearhaus.Gateway
 
         [JsonProperty("mastercard_bin")]
         public string mastercardBin {get; set;}
+    }
+
+    // TODO: Add CSC reponse option?
+    public class TokenizedCard
+    {
+        public string id;
+
+        public string last4;
+
+        public string scheme;
+
+        //public string type;
+        //public string country;
     }
 }

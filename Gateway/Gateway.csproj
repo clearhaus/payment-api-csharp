@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <CodePage>65001</CodePage>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <CodePage>65001</CodePage>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="RestSharp" Version="106.3.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+        <PackageReference Include="BouncyCastle" Version="1.8.2" />
+    </ItemGroup>
 </Project>
