@@ -1,8 +1,5 @@
 using System;
-using System.Text;
-using System.Collections.Generic;
 
-using System.Net.Http;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
 using Org.BouncyCastle.OpenSsl;
@@ -14,6 +11,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using Newtonsoft.Json;
 
 using Clearhaus.Gateway.Transaction;
+using Clearhaus.Gateway.Transaction.Options;
 
 namespace Clearhaus.Gateway
 {
@@ -163,7 +161,7 @@ namespace Clearhaus.Gateway
         /// </summary>
         public Authorization Authorize(string amount, string currency, Card cc)
         {
-            return Authorize(amount, currency, cc, "");
+            return Authorize(amount, currency, cc, null);
         }
 
         /// <summary>
@@ -184,26 +182,31 @@ namespace Clearhaus.Gateway
         /// <param name="cc">
         /// Card to authorize against. <see cref="Clearhaus.Gateway.Card"/>.
         /// </param>
-        /// <param name="ip">
-        /// IPv4/IPv6 address from which the purchase originated. <i>Optional</i>..
-        /// <a href="https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#parameters">
-        /// See also Gateway Documentation.
-        /// </a>
+        /// <param name="opts">
+        /// Optionals parameters for authorizations or null.
         /// </param>
-        public Authorization Authorize(string amount, string currency, Card cc, string ip)
+        /* TODO:
+         * - recurring
+         * - text_on_statement
+         * - reference
+         * - payment-methods
+         */
+        public Authorization Authorize(string amount, string currency, Card cc, AuthorizationOptions opts)
         {
             var builder = newRestBuilder("authorizations/");
 
             builder.AddParameter("amount", amount);
             builder.AddParameter("currency", currency);
-            if (!string.IsNullOrEmpty(ip))
-            {
-                builder.AddParameter("ip", ip);
-            }
+
             builder.AddParameter("card[pan]", cc.pan);
             builder.AddParameter("card[csc]", cc.csc);
             builder.AddParameter("card[expire_month]", cc.expireMonth);
             builder.AddParameter("card[expire_year]", cc.expireYear);
+
+            if (opts != null)
+            {
+                builder.AddParameters(opts.GetParameters());
+            }
 
             return POSTtoObject<Authorization>(builder.Ready());
         }
@@ -212,11 +215,17 @@ namespace Clearhaus.Gateway
          * VOID IMPLEMENTATION
          */
 
+        /// <summary>
+        /// <see cref="Void(string)"/>
+        /// </summary>
         public Transaction.Void Void(Authorization auth)
         {
             return Void(auth.id);
         }
 
+        /// <summary>
+        /// Void (annul) an authorization.
+        /// </summary>
         public Transaction.Void Void(string authorizationID)
         {
             var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
@@ -227,27 +236,44 @@ namespace Clearhaus.Gateway
          * CAPTURE IMPLEMENTATION
          */
 
+        /// <summary>
+        /// <see cref="Capture(string, string, string)"/>
+        /// </summary>
         public Capture Capture(string id)
         {
-            return Capture(id, "");
+            return Capture(id, "", "");
         }
 
+        /// <summary>
+        /// <see cref="Capture(string, string, string)"/>
+        /// </summary>
         public Capture Capture(Authorization auth)
         {
-            return Capture(auth.id, "");
+            return Capture(auth.id, "", "");
         }
 
+        /// <summary>
+        /// <see cref="Capture(string, string, string)"/>
+        /// </summary>
         public Capture Capture(Authorization auth, string amount)
         {
-            return Capture(auth.id, amount);
+            return Capture(auth.id, amount, "");
         }
 
-        public Capture Capture(string id, string amount)
+        /// <summary>
+        /// Capture reserved money.
+        /// </summary>
+        public Capture Capture(string id, string amount, string textOnStatement)
         {
 
             var builder = newRestBuilder("authorizations/{0}/captures", id);
 
-            if (!string.IsNullOrEmpty(amount))
+            if (!string.IsNullOrWhiteSpace(textOnStatement))
+            {
+                builder.AddParameter("text_on_statement", textOnStatement);
+            }
+
+            if (!string.IsNullOrWhiteSpace(amount))
             {
                 builder.AddParameter("amount", amount);
             }
@@ -259,13 +285,24 @@ namespace Clearhaus.Gateway
          * REFUND IMPLEMENTATION
          */
 
-        public Refund Refund(string id, string amount)
+        /// <summary>
+        /// Refund funds captured on an authorization.
+        /// </summary>
+        /// <param name="id">Authorization UUID</param>
+        /// <param name="amount">Amount to refund, must be less than captured</param>
+        /// <param name="textOnStatement">Overrides text on authorization</param>
+        public Refund Refund(string id, string amount, string textOnStatement)
         {
             var builder = newRestBuilder( "authorizations/{0}/refunds", id);
 
-            if (!string.IsNullOrEmpty(amount))
+            if (!string.IsNullOrWhiteSpace(amount))
             {
                 builder.AddParameter("amount", amount);
+            }
+
+            if (!string.IsNullOrWhiteSpace(textOnStatement))
+            {
+                builder.AddParameter("text_on_statement", textOnStatement);
             }
 
             return POSTtoObject<Refund>(builder.Ready());
@@ -275,6 +312,9 @@ namespace Clearhaus.Gateway
          * CREDIT IMPLEMENTATION
          */
 
+        /*
+         * Not meant for public usage.
+         */
         private TokenizedCard TokenizeCard(Card cc)
         {
             var builder = newRestBuilder("/cards");
@@ -291,7 +331,15 @@ namespace Clearhaus.Gateway
             return tokCard;
         }
 
-        public Credit Credit(string amount, string currency, Card cc)
+        /// <summary>
+        /// Transfer funds to cartholder account.
+        /// </summary>
+        /// <param name="amount">Amount to transfer</param>
+        /// <param name="currency">Currency to use for transfer</param>
+        /// <param name="cc">Card to transfer to</param>
+        /// <param name="textOnStatement">Statement on cardholders bank account</param>
+        /// <param name="reference">External reference</param>
+        public Credit Credit(string amount, string currency, Card cc, string textOnStatement, string reference)
         {
             // The API currently needs us to create a `cards/` resource before
             // we can do a credit.
@@ -301,6 +349,16 @@ namespace Clearhaus.Gateway
             builder.AddParameter("id", tokCard.id);
             builder.AddParameter("amount", amount);
             builder.AddParameter("currency", currency);
+
+            if (!string.IsNullOrWhiteSpace(textOnStatement))
+            {
+                builder.AddParameter("text_on_statement", textOnStatement);
+            }
+
+            if (!string.IsNullOrWhiteSpace(reference))
+            {
+                builder.AddParameter("reference", reference);
+            }
 
             var credit = POSTtoObject<Credit>(builder.Ready());
 

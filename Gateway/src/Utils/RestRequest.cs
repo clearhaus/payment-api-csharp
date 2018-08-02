@@ -4,6 +4,9 @@ using System.Net.Http;
 
 namespace Clearhaus.Gateway.Util
 {
+    /// <summary>
+    /// Helper class for building rest request helper.
+    /// </summary>
     public class RestRequestBuilder
     {
         private IList<KeyValuePair<string, string>> bodyParameters;
@@ -35,6 +38,14 @@ namespace Clearhaus.Gateway.Util
             bodyParameters.Add(new KeyValuePair<string, string>(key, val));
         }
 
+        public void AddParameters(IList<KeyValuePair<string, string>> l)
+        {
+            foreach (var kv in l)
+            {
+                bodyParameters.Add(kv);
+            }
+        }
+
         public RestRequest Ready()
         {
             content = new FormUrlEncodedContent(bodyParameters);
@@ -42,6 +53,7 @@ namespace Clearhaus.Gateway.Util
         }
     }
 
+    /// Help class for building rest requests.
     public class RestRequest
     {
         private string url;
