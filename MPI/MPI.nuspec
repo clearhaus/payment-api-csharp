@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Clearhaus.Gateway</id>
-    <version>0.0.2</version>
-    <title>Clearhaus Gateway API</title>
+    <id>Clearhaus.MPI</id>
+    <version>0.0.1</version>
+    <title>Clearhaus MPI API</title>
     <authors>kse</authors>
     <owners>kse</owners>
     <projectUrl>https://www.clearhaus.com</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>API for Clearhaus A/S acquiring gateway</description>
+    <description>API for Clearhaus A/S MPI gateway</description>
     <copyright>Copyright Clearhaus A/S -- 2018</copyright>
-    <tags>acquiring finance</tags>
+    <tags>3dsecure mpi finance</tags>
   </metadata>
 </package>
