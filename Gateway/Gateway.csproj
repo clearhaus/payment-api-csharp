@@ -11,12 +11,15 @@
 
         <!-- Information for `dotnet pack`-->
         <PackageId>Clearhaus.API.Gateway</PackageId>
-        <PackageVersion>0.0.3</PackageVersion>
+        <PackageVersion>0.0.4</PackageVersion>
         <Authors>kse</Authors>
         <Owners>kse</Owners>
         <Title>Clearhaus Gateway API</Title>
-        <Description>API for Clearhaus A/S acquiring gateway.</Description>
-        <PackageTags>acquiring; finance</PackageTags>
+        <Description>
+            API for Clearhaus A/S acquiring gateway.
+            Documentation can be found at https://github.com/clearhaus/payment-api-csharp/blob/master/GatewayDocumentation.md
+        </Description>
+        <PackageTags>acquiring; finance; payments; ecommerce; e-commerce; credit-card; online-payments</PackageTags>
         <PackageProjectUrl>https://www.clearhaus.com</PackageProjectUrl>
         <PackageIconUrl>https://www.clearhaus.com/favicon-64x64.png</PackageIconUrl>
     </PropertyGroup>
