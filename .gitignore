@@ -44,5 +44,5 @@ Thumbs.db
 .idea
 .vscode
 
-# File to exports test variables
+# File used to export test variables
 export.sh
