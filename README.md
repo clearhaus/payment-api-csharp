@@ -1,9 +1,8 @@
 # Clearhaus Payments C# API
 
-This repository contains C# APIs for Clearhaus' Services
-
+This repository contains C# APIs for Clearhaus' Services.
 
 | Service     | API Documentation |
 | ----------- | ----------------- |
-| [Payment Transacction Gateway](https://docs.gateway.clearhaus.com) | [GatewayDocumentation.md] |
-| [MPI Service](https://docs.3dsecure.io) | [MPIDocumentation.md] |
+| [Payment Transacction Gateway](http://docs.gateway.clearhaus.com) | [GatewayDocumentation.md](GatewayDocumentation.md) |
+| [MPI Service](http://docs.3dsecure.io) | [MPIDocumentation.md](MPIDocumentation.md) |
