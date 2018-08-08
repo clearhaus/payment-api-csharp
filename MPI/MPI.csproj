@@ -1,11 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <!-- Build information -->
         <TargetFramework>netstandard2.0</TargetFramework>
         <CodePage>65001</CodePage>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <DocumentationMarkdown>'..\..\..\MPIDocumentation.md</DocumentationMarkdown>
+
+        <!-- Information for `dotnet pack`-->
+        <PackageId>Clearhaus.API.MPI</PackageId>
+        <PackageVersion>0.0.2</PackageVersion>
+        <Authors>kse</Authors>
+        <Owners>kse</Owners>
+        <Title>Clearhaus MPI API</Title>
+        <Description>API for Clearhaus A/S MPI gateway.</Description>
+        <PackageTags>3dsecure; mpi; finance</PackageTags>
+        <PackageProjectUrl>https://www.clearhaus.com</PackageProjectUrl>
+        <PackageIconUrl>https://www.clearhaus.com/favicon-64x64.png</PackageIconUrl>
     </PropertyGroup>
 
     <ItemGroup>
