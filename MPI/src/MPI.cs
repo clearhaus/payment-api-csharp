@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Text;
 
 using Clearhaus.Util;
 using Clearhaus.MPI.Builder;
