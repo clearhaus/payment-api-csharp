@@ -41,8 +41,6 @@
   - [matches](#P-Clearhaus-Gateway-Transaction-CSCStatus-matches 'Clearhaus.Gateway.Transaction.CSCStatus.matches')
   - [present](#P-Clearhaus-Gateway-Transaction-CSCStatus-present 'Clearhaus.Gateway.Transaction.CSCStatus.present')
 - [Refund](#T-Clearhaus-Gateway-Transaction-Refund 'Clearhaus.Gateway.Transaction.Refund')
-- [RestRequest](#T-Clearhaus-Gateway-Util-RestRequest 'Clearhaus.Gateway.Util.RestRequest')
-- [RestRequestBuilder](#T-Clearhaus-Gateway-Util-RestRequestBuilder 'Clearhaus.Gateway.Util.RestRequestBuilder')
 - [Status](#T-Clearhaus-Gateway-Transaction-Status 'Clearhaus.Gateway.Transaction.Status')
   - [code](#P-Clearhaus-Gateway-Transaction-Status-code 'Clearhaus.Gateway.Transaction.Status.code')
   - [message](#P-Clearhaus-Gateway-Transaction-Status-message 'Clearhaus.Gateway.Transaction.Status.message')
@@ -457,24 +455,6 @@ Clearhaus.Gateway.Transaction
 ##### Summary
 
 Represents a completed refund transaction
-
-<a name='T-Clearhaus-Gateway-Util-RestRequest'></a>
-## RestRequest `type`
-
-##### Namespace
-
-Clearhaus.Gateway.Util
-
-<a name='T-Clearhaus-Gateway-Util-RestRequestBuilder'></a>
-## RestRequestBuilder `type`
-
-##### Namespace
-
-Clearhaus.Gateway.Util
-
-##### Summary
-
-Helper class for building rest request helper.
 
 <a name='T-Clearhaus-Gateway-Transaction-Status'></a>
 ## Status `type`

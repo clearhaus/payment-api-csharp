@@ -1,5 +1,6 @@
 using System;
 
+// using System.Net conflictions with Authorization class
 using HttpStatusCode = System.Net.HttpStatusCode;
 
 using Org.BouncyCastle.OpenSsl;
@@ -10,6 +11,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 using Newtonsoft.Json;
 
+using Clearhaus.Util;
 using Clearhaus.Gateway.Transaction;
 using Clearhaus.Gateway.Transaction.Options;
 
@@ -43,8 +45,7 @@ namespace Clearhaus.Gateway
         /// Creates an account object with associated apiKey.
         /// </summary>
         /// <param name="apiKey">
-        /// The API Key associated with the merchant account where transactions
-        /// must end up.
+        /// The API Key associated with the merchant account where transactions must end up.
         /// </param>
         public Account(string apiKey)
         {
@@ -99,15 +100,15 @@ namespace Clearhaus.Gateway
         /// <param name="args">
         /// String arguments to format string path.
         /// </param>
-        private Util.RestRequestBuilder newRestBuilder(string path, params string[] args)
+        private RestRequestBuilder newRestBuilder(string path, params string[] args)
         {
-            var builder = new Util.RestRequestBuilder(new Uri(gatewayURL), apiKey, "");
+            var builder = new RestRequestBuilder(new Uri(gatewayURL), apiKey, "");
             builder.SetPath(path, args);
 
             return builder;
         }
 
-        private T GETToObject<T>(Util.RestRequest req)
+        private T GETToObject<T>(RestRequest req)
         {
             var response = req.GET();
 
@@ -119,7 +120,7 @@ namespace Clearhaus.Gateway
             return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
         }
 
-        private T POSTtoObject<T>(Util.RestRequest req)
+        private T POSTtoObject<T>(RestRequest req)
         {
             if (!string.IsNullOrEmpty(rsaPrivateKey) && !string.IsNullOrEmpty(signingAPIKey))
             {
@@ -263,6 +264,9 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// Capture reserved money.
         /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        /// <param name="amount">Amount to capture</param>
+        /// <param name="textOnStatement">Text to appear on cardholder bank statement</param>
         public Capture Capture(string id, string amount, string textOnStatement)
         {
 
@@ -369,7 +373,7 @@ namespace Clearhaus.Gateway
          * SIGNING IMPLEMENTATION
          */
 
-        private void sign(Util.RestRequest request)
+        private void sign(RestRequest request)
         {
             var stringreader = new System.IO.StringReader(rsaPrivateKey);
             var reader = new PemReader(stringreader);
@@ -377,7 +381,7 @@ namespace Clearhaus.Gateway
             var obj = reader.ReadObject();
             if (obj == null)
             {
-                throw new Exception("Invalid private key, remove all spaces");
+                throw new Exception("Invalid private key. Make sure to remove all spaces.");
             }
 
             if (!(obj is AsymmetricCipherKeyPair))
@@ -389,9 +393,9 @@ namespace Clearhaus.Gateway
             var sha256 = new Sha256Digest();
 
             AsymmetricCipherKeyPair keypair = (AsymmetricCipherKeyPair)obj;
+
             var signer = new RsaDigestSigner(sha256);
             signer.Init(true, (ICipherParameters)keypair.Private);
-
             signer.BlockUpdate(bodyBytes, 0, bodyBytes.Length);
 
             byte[] signature = signer.GenerateSignature();

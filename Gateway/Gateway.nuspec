@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Clearhaus.Gateway.API</id>
+    <version>0.0.1</version>
+    <title>Clearhaus Gateway API</title>
+    <authors>Kasper Eenberg</authors>
+    <owners>Clearhaus A/S</owners>
+    <projectUrl>https://www.clearhaus.com</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Gateway for Clearhaus A/S acquiring gateway.</description>
+    <copyright>Copyright Clearhaus A/S -- 2018</copyright>
+    <tags>acquiring</tags>
+  </metadata>
+</package>
