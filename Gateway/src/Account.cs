@@ -24,6 +24,16 @@ namespace Clearhaus.Gateway
     /// <summary>
     /// Represents an account that integrates towards the Clearhaus gateway.
     /// </summary>
+    /// <example>
+    /// This is an example of how to create an authorization and capture money.
+    /// <code lang="csharp">
+    /// using Clearhaus.Gateway;
+    /// public static void main()
+    /// {
+    ///     var apiKey = "My Secret UUID";
+    /// }
+    /// </code>
+    /// </example>
     public class Account
     {
         internal string apiKey;
@@ -45,7 +55,7 @@ namespace Clearhaus.Gateway
         /// Creates an account object with associated apiKey.
         /// </summary>
         /// <param name="apiKey">
-        /// The API Key associated with the merchant account where transactions must end up.
+        /// The API Key associated with the merchant account on which the transactions are to be performed.
         /// </param>
         public Account(string apiKey)
         {
@@ -61,7 +71,7 @@ namespace Clearhaus.Gateway
         /// API key issued to trusted integrator.
         /// </param>
         /// <param name="rsaPrivateKey">
-        /// RSA Signing key associated with apiKey.
+        /// RSA Signing key associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature.
         /// </param>
         public void SigningKeys(string apiKey, string rsaPrivateKey)
         {
@@ -72,7 +82,7 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// Connects to the Gateway attempts to authorize with the apiKey.
         /// </summary>
-        /// <exception cref="Clearhaus.Gateway.ClrhsNetException">
+        /// <exception cref="Clearhaus.Util.ClrhsNetException">
         /// Thrown if connection to the gateway fails.
         /// </exception>
         public bool ValidAPIKey()
@@ -138,7 +148,7 @@ namespace Clearhaus.Gateway
         }
 
         /// <summary>
-        /// Fetches account information about the class apiKey.
+        /// Fetches account information about the associated apiKey.
         /// </summary>
         /// <remarks>
         /// Calls the gateways 'account/' endpoint.
@@ -158,34 +168,24 @@ namespace Clearhaus.Gateway
          */
 
         /// <summary>
-        /// <see cref="Authorize(string, string, Card)"/>
+        /// <see cref="Authorize(string, string, Card, AuthorizationOptions)"/>
         /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
         public Authorization Authorize(string amount, string currency, Card cc)
         {
             return Authorize(amount, currency, cc, null);
         }
 
         /// <summary>
-        /// Creates an authorization against the Gateway (<a href="https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication">Read More</a>)
+        /// Creates an authorization against the Gateway.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
         /// </summary>
-        /// <param name="amount">
-        /// Minor units of <c>currency</c>.
-        /// <a href="https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#parameters">
-        /// See also Gateway Documentation.
-        /// </a>
-        /// </param>
-        /// <param name="currency">
-        /// Currency in which <c>amount</c> is specified.
-        /// <a href="https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#parameters">
-        /// See also Gateway Documentation.
-        /// </a>
-        /// </param>
-        /// <param name="cc">
-        /// Card to authorize against. <see cref="Clearhaus.Gateway.Card"/>.
-        /// </param>
-        /// <param name="opts">
-        /// Optionals parameters for authorizations or null.
-        /// </param>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
+        /// <param name="opts">Optional parameters for authorizations or null</param>
         /* TODO:
          * - recurring
          * - text_on_statement
@@ -225,7 +225,8 @@ namespace Clearhaus.Gateway
         }
 
         /// <summary>
-        /// Void (annul) an authorization.
+        /// Void (annul) an authorization
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#voids
         /// </summary>
         public Transaction.Void Void(string authorizationID)
         {
@@ -240,6 +241,7 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// <see cref="Capture(string, string, string)"/>
         /// </summary>
+        /// <param name="id">UUID of authorization</param>
         public Capture Capture(string id)
         {
             return Capture(id, "", "");
@@ -248,6 +250,7 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// <see cref="Capture(string, string, string)"/>
         /// </summary>
+        /// <param name="auth">Authorization object on which to perform capture</param>
         public Capture Capture(Authorization auth)
         {
             return Capture(auth.id, "", "");
@@ -256,13 +259,37 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// <see cref="Capture(string, string, string)"/>
         /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        /// <param name="amount">Amount to capture</param>
+        public Capture Capture(string id, string amount)
+        {
+            return Capture(id, amount, "");
+        }
+
+        /// <summary>
+        /// <see cref="Capture(string, string, string)"/>
+        /// </summary>
+        /// <param name="auth">Authorization object on which to perform capture</param>
+        /// <param name="amount">Amount to capture</param>
         public Capture Capture(Authorization auth, string amount)
         {
             return Capture(auth.id, amount, "");
         }
 
         /// <summary>
+        /// <see cref="Capture(string, string, string)"/>
+        /// </summary>
+        /// <param name="auth">Authorization object on which to perform capture</param>
+        /// <param name="amount">Amount to capture</param>
+        /// <param name="textOnStatement">Text to appear on cardholder bank statement</param>
+        public Capture Capture(Authorization auth, string amount, string textOnStatement)
+        {
+            return Capture(auth.id, amount, textOnStatement);
+        }
+
+        /// <summary>
         /// Capture reserved money.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
         /// </summary>
         /// <param name="id">UUID of authorization</param>
         /// <param name="amount">Amount to capture</param>
@@ -290,10 +317,60 @@ namespace Clearhaus.Gateway
          */
 
         /// <summary>
-        /// Refund funds captured on an authorization.
+        /// <see cref="Refund(string, string, string)"/>
         /// </summary>
-        /// <param name="id">Authorization UUID</param>
-        /// <param name="amount">Amount to refund, must be less than captured</param>
+        /// <param name="auth">Authorization to refund</param>
+        public Refund Refund(Authorization auth)
+        {
+            return Refund(auth.id, "", "");
+        }
+
+        /// <summary>
+        /// <see cref="Refund(string, string, string)"/>
+        /// </summary>
+        /// <param name="auth">Authorization to refund</param>
+        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
+        public Refund Refund(Authorization auth, string amount)
+        {
+            return Refund(auth.id, amount, "");
+        }
+
+        /// <summary>
+        /// <see cref="Refund(string, string, string)"/>
+        /// </summary>
+        /// <param name="auth">Authorization to refund</param>
+        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
+        /// <param name="textOnStatement">Overrides text on authorization</param>
+        public Refund Refund(Authorization auth, string amount, string textOnStatement)
+        {
+            return Refund(auth.id, amount, textOnStatement);
+        }
+
+        /// <summary>
+        /// <see cref="Refund(string, string, string)"/>
+        /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        public Refund Refund(string id)
+        {
+            return Refund(id, "", "");
+        }
+
+        /// <summary>
+        /// <see cref="Refund(string, string, string)"/>
+        /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
+        public Refund Refund(string id, string amount)
+        {
+            return Refund(id, amount, "");
+        }
+
+        /// <summary>
+        /// Refund funds captured on an authorization.
+        /// https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
+        /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
         /// <param name="textOnStatement">Overrides text on authorization</param>
         public Refund Refund(string id, string amount, string textOnStatement)
         {
@@ -317,7 +394,8 @@ namespace Clearhaus.Gateway
          */
 
         /*
-         * Not meant for public usage.
+         * For API reasons, we still need to tokenize the card before we can
+         * perform a credit transaction
          */
         private TokenizedCard TokenizeCard(Card cc)
         {

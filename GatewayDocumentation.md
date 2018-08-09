@@ -6,15 +6,22 @@
 - [Account](#T-Clearhaus-Gateway-Account 'Clearhaus.Gateway.Account')
   - [#ctor(apiKey)](#M-Clearhaus-Gateway-Account-#ctor-System-String- 'Clearhaus.Gateway.Account.#ctor(System.String)')
   - [gatewayURL](#F-Clearhaus-Gateway-Account-gatewayURL 'Clearhaus.Gateway.Account.gatewayURL')
-  - [Authorize()](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card)')
+  - [Authorize(amount,currency,cc)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card)')
   - [Authorize(amount,currency,cc,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
-  - [Capture()](#M-Clearhaus-Gateway-Account-Capture-System-String- 'Clearhaus.Gateway.Account.Capture(System.String)')
-  - [Capture()](#M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization- 'Clearhaus.Gateway.Account.Capture(Clearhaus.Gateway.Transaction.Authorization)')
-  - [Capture()](#M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization,System-String- 'Clearhaus.Gateway.Account.Capture(Clearhaus.Gateway.Transaction.Authorization,System.String)')
+  - [Capture(id)](#M-Clearhaus-Gateway-Account-Capture-System-String- 'Clearhaus.Gateway.Account.Capture(System.String)')
+  - [Capture(auth)](#M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization- 'Clearhaus.Gateway.Account.Capture(Clearhaus.Gateway.Transaction.Authorization)')
+  - [Capture(id,amount)](#M-Clearhaus-Gateway-Account-Capture-System-String,System-String- 'Clearhaus.Gateway.Account.Capture(System.String,System.String)')
+  - [Capture(auth,amount)](#M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization,System-String- 'Clearhaus.Gateway.Account.Capture(Clearhaus.Gateway.Transaction.Authorization,System.String)')
+  - [Capture(auth,amount,textOnStatement)](#M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization,System-String,System-String- 'Clearhaus.Gateway.Account.Capture(Clearhaus.Gateway.Transaction.Authorization,System.String,System.String)')
   - [Capture(id,amount,textOnStatement)](#M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Capture(System.String,System.String,System.String)')
   - [Credit(amount,currency,cc,textOnStatement,reference)](#M-Clearhaus-Gateway-Account-Credit-System-String,System-String,Clearhaus-Gateway-Card,System-String,System-String- 'Clearhaus.Gateway.Account.Credit(System.String,System.String,Clearhaus.Gateway.Card,System.String,System.String)')
   - [FetchAccountInformation()](#M-Clearhaus-Gateway-Account-FetchAccountInformation 'Clearhaus.Gateway.Account.FetchAccountInformation')
   - [newRestBuilder(path,args)](#M-Clearhaus-Gateway-Account-newRestBuilder-System-String,System-String[]- 'Clearhaus.Gateway.Account.newRestBuilder(System.String,System.String[])')
+  - [Refund(auth)](#M-Clearhaus-Gateway-Account-Refund-Clearhaus-Gateway-Transaction-Authorization- 'Clearhaus.Gateway.Account.Refund(Clearhaus.Gateway.Transaction.Authorization)')
+  - [Refund(auth,amount)](#M-Clearhaus-Gateway-Account-Refund-Clearhaus-Gateway-Transaction-Authorization,System-String- 'Clearhaus.Gateway.Account.Refund(Clearhaus.Gateway.Transaction.Authorization,System.String)')
+  - [Refund(auth,amount,textOnStatement)](#M-Clearhaus-Gateway-Account-Refund-Clearhaus-Gateway-Transaction-Authorization,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(Clearhaus.Gateway.Transaction.Authorization,System.String,System.String)')
+  - [Refund(id)](#M-Clearhaus-Gateway-Account-Refund-System-String- 'Clearhaus.Gateway.Account.Refund(System.String)')
+  - [Refund(id,amount)](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String)')
   - [Refund(id,amount,textOnStatement)](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String,System.String)')
   - [SigningKeys(apiKey,rsaPrivateKey)](#M-Clearhaus-Gateway-Account-SigningKeys-System-String,System-String- 'Clearhaus.Gateway.Account.SigningKeys(System.String,System.String)')
   - [ValidAPIKey()](#M-Clearhaus-Gateway-Account-ValidAPIKey 'Clearhaus.Gateway.Account.ValidAPIKey')
@@ -57,6 +64,18 @@ Clearhaus.Gateway
 
 Represents an account that integrates towards the Clearhaus gateway.
 
+##### Example
+
+This is an example of how to create an authorization and capture money.
+
+```csharp
+using Clearhaus.Gateway;
+            public static void main()
+            {
+                var apiKey = "My Secret UUID";
+            }
+```
+
 <a name='M-Clearhaus-Gateway-Account-#ctor-System-String-'></a>
 ### #ctor(apiKey) `constructor`
 
@@ -68,7 +87,7 @@ Creates an account object with associated apiKey.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | The API Key associated with the merchant account where transactions must end up. |
+| apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | The API Key associated with the merchant account on which the transactions are to be performed. |
 
 <a name='F-Clearhaus-Gateway-Account-gatewayURL'></a>
 ### gatewayURL `constants`
@@ -79,34 +98,39 @@ URL address of Clearhaus Gateway. By default `Constants.GatewayURL`.
             .
 
 <a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card-'></a>
-### Authorize() `method`
+### Authorize(amount,currency,cc) `method`
 
 ##### Summary
 
-[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card)')
+[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
 
 ##### Parameters
 
-This method has no parameters.
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount` is specified |
+| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
 
 <a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-'></a>
 ### Authorize(amount,currency,cc,opts) `method`
 
 ##### Summary
 
-Creates an authorization against the Gateway ()
+Creates an authorization against the Gateway.
+            See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
 
 ##### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Minor units of `currency`. |
-| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount` is specified. |
-| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card'). |
-| opts | [Clearhaus.Gateway.Transaction.Options.AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions') | Optionals parameters for authorizations or null. |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount` is specified |
+| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
+| opts | [Clearhaus.Gateway.Transaction.Options.AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions') | Optional parameters for authorizations or null |
 
 <a name='M-Clearhaus-Gateway-Account-Capture-System-String-'></a>
-### Capture() `method`
+### Capture(id) `method`
 
 ##### Summary
 
@@ -114,10 +138,12 @@ Creates an authorization against the Gateway ()
 
 ##### Parameters
 
-This method has no parameters.
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID of authorization |
 
 <a name='M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization-'></a>
-### Capture() `method`
+### Capture(auth) `method`
 
 ##### Summary
 
@@ -125,10 +151,26 @@ This method has no parameters.
 
 ##### Parameters
 
-This method has no parameters.
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| auth | [Clearhaus.Gateway.Transaction.Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization') | Authorization object on which to perform capture |
+
+<a name='M-Clearhaus-Gateway-Account-Capture-System-String,System-String-'></a>
+### Capture(id,amount) `method`
+
+##### Summary
+
+[Capture](#M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Capture(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID of authorization |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to capture |
 
 <a name='M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization,System-String-'></a>
-### Capture() `method`
+### Capture(auth,amount) `method`
 
 ##### Summary
 
@@ -136,7 +178,25 @@ This method has no parameters.
 
 ##### Parameters
 
-This method has no parameters.
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| auth | [Clearhaus.Gateway.Transaction.Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization') | Authorization object on which to perform capture |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to capture |
+
+<a name='M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization,System-String,System-String-'></a>
+### Capture(auth,amount,textOnStatement) `method`
+
+##### Summary
+
+[Capture](#M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Capture(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| auth | [Clearhaus.Gateway.Transaction.Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization') | Authorization object on which to perform capture |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to capture |
+| textOnStatement | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Text to appear on cardholder bank statement |
 
 <a name='M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String-'></a>
 ### Capture(id,amount,textOnStatement) `method`
@@ -144,6 +204,7 @@ This method has no parameters.
 ##### Summary
 
 Capture reserved money.
+            See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
 
 ##### Parameters
 
@@ -175,7 +236,7 @@ Transfer funds to cartholder account.
 
 ##### Summary
 
-Fetches account information about the class apiKey.
+Fetches account information about the associated apiKey.
 
 ##### Returns
 
@@ -203,19 +264,89 @@ Helper to ensure apikey is applied to all rest calls.
 | path | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | URL path with format options like string.Format. |
 | args | [System.String[]](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String[] 'System.String[]') | String arguments to format string path. |
 
+<a name='M-Clearhaus-Gateway-Account-Refund-Clearhaus-Gateway-Transaction-Authorization-'></a>
+### Refund(auth) `method`
+
+##### Summary
+
+[Refund](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| auth | [Clearhaus.Gateway.Transaction.Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization') | Authorization to refund |
+
+<a name='M-Clearhaus-Gateway-Account-Refund-Clearhaus-Gateway-Transaction-Authorization,System-String-'></a>
+### Refund(auth,amount) `method`
+
+##### Summary
+
+[Refund](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| auth | [Clearhaus.Gateway.Transaction.Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization') | Authorization to refund |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to refund or empty string, must be less than captured |
+
+<a name='M-Clearhaus-Gateway-Account-Refund-Clearhaus-Gateway-Transaction-Authorization,System-String,System-String-'></a>
+### Refund(auth,amount,textOnStatement) `method`
+
+##### Summary
+
+[Refund](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| auth | [Clearhaus.Gateway.Transaction.Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization') | Authorization to refund |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to refund or empty string, must be less than captured |
+| textOnStatement | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Overrides text on authorization |
+
+<a name='M-Clearhaus-Gateway-Account-Refund-System-String-'></a>
+### Refund(id) `method`
+
+##### Summary
+
+[Refund](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID of authorization |
+
+<a name='M-Clearhaus-Gateway-Account-Refund-System-String,System-String-'></a>
+### Refund(id,amount) `method`
+
+##### Summary
+
+[Refund](#M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Refund(System.String,System.String,System.String)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID of authorization |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to refund or empty string, must be less than captured |
+
 <a name='M-Clearhaus-Gateway-Account-Refund-System-String,System-String,System-String-'></a>
 ### Refund(id,amount,textOnStatement) `method`
 
 ##### Summary
 
 Refund funds captured on an authorization.
+            https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
 
 ##### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| id | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Authorization UUID |
-| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to refund, must be less than captured |
+| id | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID of authorization |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount to refund or empty string, must be less than captured |
 | textOnStatement | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Overrides text on authorization |
 
 <a name='M-Clearhaus-Gateway-Account-SigningKeys-System-String,System-String-'></a>
@@ -232,7 +363,7 @@ Sets the Clearhaus API key and associated rsaPrivateKey to be
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | API key issued to trusted integrator. |
-| rsaPrivateKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | RSA Signing key associated with apiKey. |
+| rsaPrivateKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | RSA Signing key associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature. |
 
 <a name='M-Clearhaus-Gateway-Account-ValidAPIKey'></a>
 ### ValidAPIKey() `method`
@@ -249,7 +380,7 @@ This method has no parameters.
 
 | Name | Description |
 | ---- | ----------- |
-| [Clearhaus.Gateway.ClrhsNetException](#T-Clearhaus-Gateway-ClrhsNetException 'Clearhaus.Gateway.ClrhsNetException') | Thrown if connection to the gateway fails. |
+| [Clearhaus.Util.ClrhsNetException](#T-Clearhaus-Util-ClrhsNetException 'Clearhaus.Util.ClrhsNetException') | Thrown if connection to the gateway fails. |
 
 <a name='M-Clearhaus-Gateway-Account-Void-Clearhaus-Gateway-Transaction-Authorization-'></a>
 ### Void() `method`
@@ -267,7 +398,8 @@ This method has no parameters.
 
 ##### Summary
 
-Void (annul) an authorization.
+Void (annul) an authorization
+            See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#voids
 
 ##### Parameters
 
