@@ -26,11 +26,10 @@ namespace Clearhaus.Gateway.Transaction
         /// <summary>
         /// Helper to check if transaction was a success
         /// </summary>
-        public bool isSuccess()
+        public bool IsSuccess()
         {
             return status.code == 20000;
         }
-
     }
 
 

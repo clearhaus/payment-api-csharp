@@ -19,9 +19,13 @@ namespace Clearhaus.Gateway
 
     public class Card
     {
+        public Card()
+        {
+        }
+
         public Card(string pan, string expireMonth, string expireYear, string csc)
         {
-            this.pan = pan;
+            this.pan         = pan;
             this.expireMonth = expireMonth;
             this.expireYear  = expireYear;
             this.csc         = csc;

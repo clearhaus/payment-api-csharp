@@ -1,6 +1,7 @@
 using System;
-using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Collections.Generic;
 
 namespace Clearhaus.Util
 {
@@ -63,6 +64,7 @@ namespace Clearhaus.Util
         public RestRequest(HttpClient client, HttpContent content , string url)
         {
             this.client = client;
+
             this.content = content;
             this.url = url;
         }
@@ -78,9 +80,15 @@ namespace Clearhaus.Util
             try
             {
                 response = client.PostAsync(url, content).Result;
-            } catch(HttpRequestException e)
+            }
+            catch(HttpRequestException e)
             {
                 throw new ClrhsNetException(e.Message, e);
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new ClrhsAuthException("Invalid API key");
             }
 
             return response;
@@ -92,9 +100,15 @@ namespace Clearhaus.Util
             try
             {
                 response = client.GetAsync(url).Result;
-            } catch(HttpRequestException e)
+            }
+            catch(HttpRequestException e)
             {
                 throw new ClrhsNetException(e.Message, e);
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new ClrhsAuthException("Invalid API key");
             }
 
             return response;
@@ -106,7 +120,10 @@ namespace Clearhaus.Util
             return task.Result;
         }
     }
+}
 
+namespace Clearhaus
+{
     public class ClrhsException : Exception
     {
         public ClrhsException() : base() {}
@@ -118,7 +135,7 @@ namespace Clearhaus.Util
     {
         public ClrhsAuthException() : base() {}
         public ClrhsAuthException(string msg) : base(msg) {}
-        public ClrhsAuthException(string msg, Exception exc) : base(msg, exc) {}
+        //public ClrhsAuthException(string msg, Exception exc) : base(msg, exc) {}
     }
 
     public class ClrhsNetException : ClrhsException

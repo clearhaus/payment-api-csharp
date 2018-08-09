@@ -26,11 +26,59 @@ namespace Clearhaus.Gateway
     /// </summary>
     /// <example>
     /// This is an example of how to create an authorization and capture money.
-    /// <code lang="csharp">
+    /// <code lang="C#">
     /// using Clearhaus.Gateway;
+    /// using Clearhaus.Gateway.Transaction.Options;
+    ///
     /// public static void main()
     /// {
     ///     var apiKey = "My Secret UUID";
+    ///     var card = new Card
+    ///     {
+    ///         pan         = "some PAN",
+    ///         expireMonth = "12",
+    ///         expireYear  = "2047",
+    ///         csc         = "666"
+    ///     };
+    ///
+    ///     var account = new Account(apiKey);
+    ///
+    ///     var authOptions = new AuthorizationOptions
+    ///     {
+    ///         recurring = true,
+    ///         reference = "sdg7SF12KJHjj"
+    ///     };
+    ///
+    ///     Authorization myAuth;
+    ///     try
+    ///     {
+    ///         myAuth = new Authorize("100", "DKK", card, authOptions);
+    ///     }
+    ///     catch(ClrhsNetException e)
+    ///     {
+    ///         // Failure connecting to clearhaus.
+    ///         // You should retry this.
+    ///         return;
+    ///     }
+    ///     catch(ClrhsAuthException e)
+    ///     {
+    ///         // ApiKey was invalid
+    ///         // You need to change the apiKey.
+    ///         // This can be avoided by checking the key first:
+    ///         // account.ValidAPIKey() == true
+    ///         return;
+    ///     }
+    ///     catch(ClrhsGatewayException e)
+    ///     {
+    ///         // Something was funky with the Clearhaus gateway
+    ///         // You could retry this, but maybe give it a few seconds.
+    ///         return;
+    ///     }
+    ///
+    ///     if (!myAuth.IsSuccess())
+    ///     {
+    ///         // The statuscode returned implies that an error occurred.
+    ///     }
     /// }
     /// </code>
     /// </example>

@@ -63,7 +63,7 @@ namespace Clearhaus.Gateway.Test
             var auth = account.Authorize("100", "DKK", card);
 
             Assert.NotNull(auth);
-            Assert.True(auth.isSuccess());
+            Assert.True(auth.IsSuccess());
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Clearhaus.Gateway.Test
 
             var v = account.Void(auth);
 
-            Assert.True(v.isSuccess());
+            Assert.True(v.IsSuccess());
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace Clearhaus.Gateway.Test
 
             var capture = account.Capture(auth, "100");
 
-            Assert.True(capture.isSuccess());
+            Assert.True(capture.IsSuccess());
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace Clearhaus.Gateway.Test
 
             var refund = account.Refund(auth.id, "100", "");
 
-            Assert.True(refund.isSuccess());
+            Assert.True(refund.IsSuccess());
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace Clearhaus.Gateway.Test
 
             var credit = account.Credit("100", "DKK", card, "", "");
 
-            Assert.True(credit.isSuccess());
+            Assert.True(credit.IsSuccess());
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace Clearhaus.Gateway.Test
 
             var credit = account.Credit("100", "DKK", card, "", "");
 
-            Assert.True(credit.isSuccess());
+            Assert.True(credit.IsSuccess());
         }
     }
 }
