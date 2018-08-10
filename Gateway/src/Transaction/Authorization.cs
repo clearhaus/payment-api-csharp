@@ -11,7 +11,7 @@ namespace Clearhaus.Gateway.Transaction
         /// CSC Status
         /// </summary>
         [JsonProperty("csc")]
-        public CSCStatus cscStatus {set; get;}
+        public CSCStatus cscStatus;
     }
 
     /// <summary>

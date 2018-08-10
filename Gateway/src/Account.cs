@@ -89,6 +89,15 @@ namespace Clearhaus.Gateway
         internal string rsaPrivateKey;
 
         /// <summary>
+        /// Set the timeout for all following requests against the Gateway.
+        /// </summary>
+        /// <remarks>
+        /// Default value is 5 seconds.
+        /// This value is passed straight through to a System.Net.HttpClient object without verification.
+        /// </remarks>
+        public TimeSpan Timeout;
+
+        /// <summary>
         /// URL address of Clearhaus Gateway. By default <c>Constants.GatewayURL</c>.
         /// <seealso cref="Constants.GatewayTestURL"/>.  </summary>
         public string gatewayURL = Constants.GatewayURL;
@@ -108,6 +117,7 @@ namespace Clearhaus.Gateway
         public Account(string apiKey)
         {
             this.apiKey = apiKey;
+            this.Timeout = new TimeSpan(0, 0, 5);
         }
 
         /// <summary>
@@ -130,7 +140,7 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// Connects to the Gateway attempts to authorize with the apiKey.
         /// </summary>
-        /// <exception cref="Clearhaus.Util.ClrhsNetException">
+        /// <exception cref="Clearhaus.ClrhsNetException">
         /// Thrown if connection to the gateway fails.
         /// </exception>
         public bool ValidAPIKey()
@@ -163,12 +173,19 @@ namespace Clearhaus.Gateway
             var builder = new RestRequestBuilder(new Uri(gatewayURL), apiKey, "");
             builder.SetPath(path, args);
 
+            if (Timeout != null)
+            {
+                builder.client.Timeout = Timeout;
+            }
+
             return builder;
         }
 
         private T GETToObject<T>(RestRequest req)
         {
             var response = req.GET();
+
+            req.Dispose();
 
             if (!response.IsSuccessStatusCode)
             {
@@ -186,6 +203,8 @@ namespace Clearhaus.Gateway
             }
 
             var response = req.POST();
+
+            req.Dispose();
 
             if (!response.IsSuccessStatusCode)
             {

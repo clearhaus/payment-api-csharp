@@ -10,18 +10,18 @@ namespace Clearhaus.Gateway.Transaction
         /// <summary>
         /// Status of the query
         /// </summary>
-        public Status status{get; set;}
+        public Status status;
 
         /// <summary>
         /// UUID identifying the transaction
         /// </summary>
-        public string id{get; set;}
+        public string id;
 
         /// <summary>
         /// Datetime the transaction was processed
         /// </summary>
         [JsonProperty("processed_at")]
-        public string processedAt {set; get;}
+        public string processedAt;
 
         /// <summary>
         /// Helper to check if transaction was a success
@@ -41,11 +41,11 @@ namespace Clearhaus.Gateway.Transaction
         /// <summary>
         /// See http://docs.gateway.clearhaus.com/#Transactionstatuscodes
         /// </summary>
-        public int code {get; set;}
+        public int code;
 
         /// <summary>
         /// Message associated with status code
         /// </summary>
-        public string message {get; set;}
+        public string message;
     }
 }

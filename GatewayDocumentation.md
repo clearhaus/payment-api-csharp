@@ -6,6 +6,7 @@
 - [Account](#T-Clearhaus-Gateway-Account 'Clearhaus.Gateway.Account')
   - [#ctor(apiKey)](#M-Clearhaus-Gateway-Account-#ctor-System-String- 'Clearhaus.Gateway.Account.#ctor(System.String)')
   - [gatewayURL](#F-Clearhaus-Gateway-Account-gatewayURL 'Clearhaus.Gateway.Account.gatewayURL')
+  - [Timeout](#F-Clearhaus-Gateway-Account-Timeout 'Clearhaus.Gateway.Account.Timeout')
   - [Authorize(amount,currency,cc)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card)')
   - [Authorize(amount,currency,cc,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
   - [Capture(id)](#M-Clearhaus-Gateway-Account-Capture-System-String- 'Clearhaus.Gateway.Account.Capture(System.String)')
@@ -27,8 +28,19 @@
   - [ValidAPIKey()](#M-Clearhaus-Gateway-Account-ValidAPIKey 'Clearhaus.Gateway.Account.ValidAPIKey')
   - [Void()](#M-Clearhaus-Gateway-Account-Void-Clearhaus-Gateway-Transaction-Authorization- 'Clearhaus.Gateway.Account.Void(Clearhaus.Gateway.Transaction.Authorization)')
   - [Void()](#M-Clearhaus-Gateway-Account-Void-System-String- 'Clearhaus.Gateway.Account.Void(System.String)')
+- [AccountInfo](#T-Clearhaus-Gateway-AccountInfo 'Clearhaus.Gateway.AccountInfo')
+  - [acquirer](#P-Clearhaus-Gateway-AccountInfo-acquirer 'Clearhaus.Gateway.AccountInfo.acquirer')
+  - [country](#P-Clearhaus-Gateway-AccountInfo-country 'Clearhaus.Gateway.AccountInfo.country')
+  - [descriptor](#P-Clearhaus-Gateway-AccountInfo-descriptor 'Clearhaus.Gateway.AccountInfo.descriptor')
+  - [mcc](#P-Clearhaus-Gateway-AccountInfo-mcc 'Clearhaus.Gateway.AccountInfo.mcc')
+  - [merchantID](#P-Clearhaus-Gateway-AccountInfo-merchantID 'Clearhaus.Gateway.AccountInfo.merchantID')
+  - [name](#P-Clearhaus-Gateway-AccountInfo-name 'Clearhaus.Gateway.AccountInfo.name')
+  - [transactionRules](#P-Clearhaus-Gateway-AccountInfo-transactionRules 'Clearhaus.Gateway.AccountInfo.transactionRules')
+- [Acquirer](#T-Clearhaus-Gateway-Acquirer 'Clearhaus.Gateway.Acquirer')
+  - [mastercardBin](#P-Clearhaus-Gateway-Acquirer-mastercardBin 'Clearhaus.Gateway.Acquirer.mastercardBin')
+  - [visaBin](#P-Clearhaus-Gateway-Acquirer-visaBin 'Clearhaus.Gateway.Acquirer.visaBin')
 - [Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization')
-  - [cscStatus](#P-Clearhaus-Gateway-Transaction-Authorization-cscStatus 'Clearhaus.Gateway.Transaction.Authorization.cscStatus')
+  - [cscStatus](#F-Clearhaus-Gateway-Transaction-Authorization-cscStatus 'Clearhaus.Gateway.Transaction.Authorization.cscStatus')
 - [AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions')
   - [ip](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-ip 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.ip')
   - [recurring](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-recurring 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.recurring')
@@ -36,12 +48,22 @@
   - [textOnStatement](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-textOnStatement 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.textOnStatement')
   - [GetParameters()](#M-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-GetParameters 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.GetParameters')
 - [Base](#T-Clearhaus-Gateway-Transaction-Base 'Clearhaus.Gateway.Transaction.Base')
-  - [id](#P-Clearhaus-Gateway-Transaction-Base-id 'Clearhaus.Gateway.Transaction.Base.id')
-  - [processedAt](#P-Clearhaus-Gateway-Transaction-Base-processedAt 'Clearhaus.Gateway.Transaction.Base.processedAt')
-  - [status](#P-Clearhaus-Gateway-Transaction-Base-status 'Clearhaus.Gateway.Transaction.Base.status')
+  - [id](#F-Clearhaus-Gateway-Transaction-Base-id 'Clearhaus.Gateway.Transaction.Base.id')
+  - [processedAt](#F-Clearhaus-Gateway-Transaction-Base-processedAt 'Clearhaus.Gateway.Transaction.Base.processedAt')
+  - [status](#F-Clearhaus-Gateway-Transaction-Base-status 'Clearhaus.Gateway.Transaction.Base.status')
   - [IsSuccess()](#M-Clearhaus-Gateway-Transaction-Base-IsSuccess 'Clearhaus.Gateway.Transaction.Base.IsSuccess')
 - [Capture](#T-Clearhaus-Gateway-Transaction-Capture 'Clearhaus.Gateway.Transaction.Capture')
   - [amount](#P-Clearhaus-Gateway-Transaction-Capture-amount 'Clearhaus.Gateway.Transaction.Capture.amount')
+- [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card')
+  - [#ctor()](#M-Clearhaus-Gateway-Card-#ctor 'Clearhaus.Gateway.Card.#ctor')
+  - [#ctor(pan,expireMonth,expireYear,csc)](#M-Clearhaus-Gateway-Card-#ctor-System-String,System-String,System-String,System-String- 'Clearhaus.Gateway.Card.#ctor(System.String,System.String,System.String,System.String)')
+  - [csc](#F-Clearhaus-Gateway-Card-csc 'Clearhaus.Gateway.Card.csc')
+  - [expireMonth](#F-Clearhaus-Gateway-Card-expireMonth 'Clearhaus.Gateway.Card.expireMonth')
+  - [expireYear](#F-Clearhaus-Gateway-Card-expireYear 'Clearhaus.Gateway.Card.expireYear')
+  - [pan](#F-Clearhaus-Gateway-Card-pan 'Clearhaus.Gateway.Card.pan')
+- [Constants](#T-Clearhaus-Gateway-Constants 'Clearhaus.Gateway.Constants')
+  - [GatewayTestURL](#F-Clearhaus-Gateway-Constants-GatewayTestURL 'Clearhaus.Gateway.Constants.GatewayTestURL')
+  - [GatewayURL](#F-Clearhaus-Gateway-Constants-GatewayURL 'Clearhaus.Gateway.Constants.GatewayURL')
 - [Credit](#T-Clearhaus-Gateway-Transaction-Credit 'Clearhaus.Gateway.Transaction.Credit')
   - [amount](#P-Clearhaus-Gateway-Transaction-Credit-amount 'Clearhaus.Gateway.Transaction.Credit.amount')
 - [CSCStatus](#T-Clearhaus-Gateway-Transaction-CSCStatus 'Clearhaus.Gateway.Transaction.CSCStatus')
@@ -49,8 +71,12 @@
   - [present](#P-Clearhaus-Gateway-Transaction-CSCStatus-present 'Clearhaus.Gateway.Transaction.CSCStatus.present')
 - [Refund](#T-Clearhaus-Gateway-Transaction-Refund 'Clearhaus.Gateway.Transaction.Refund')
 - [Status](#T-Clearhaus-Gateway-Transaction-Status 'Clearhaus.Gateway.Transaction.Status')
-  - [code](#P-Clearhaus-Gateway-Transaction-Status-code 'Clearhaus.Gateway.Transaction.Status.code')
-  - [message](#P-Clearhaus-Gateway-Transaction-Status-message 'Clearhaus.Gateway.Transaction.Status.message')
+  - [code](#F-Clearhaus-Gateway-Transaction-Status-code 'Clearhaus.Gateway.Transaction.Status.code')
+  - [message](#F-Clearhaus-Gateway-Transaction-Status-message 'Clearhaus.Gateway.Transaction.Status.message')
+- [TokenizedCard](#T-Clearhaus-Gateway-TokenizedCard 'Clearhaus.Gateway.TokenizedCard')
+  - [id](#F-Clearhaus-Gateway-TokenizedCard-id 'Clearhaus.Gateway.TokenizedCard.id')
+  - [last4](#F-Clearhaus-Gateway-TokenizedCard-last4 'Clearhaus.Gateway.TokenizedCard.last4')
+  - [scheme](#F-Clearhaus-Gateway-TokenizedCard-scheme 'Clearhaus.Gateway.TokenizedCard.scheme')
 - [Void](#T-Clearhaus-Gateway-Transaction-Void 'Clearhaus.Gateway.Transaction.Void')
 
 <a name='T-Clearhaus-Gateway-Account'></a>
@@ -144,6 +170,18 @@ Creates an account object with associated apiKey.
 
 URL address of Clearhaus Gateway. By default `Constants.GatewayURL`.
             .
+
+<a name='F-Clearhaus-Gateway-Account-Timeout'></a>
+### Timeout `constants`
+
+##### Summary
+
+Set the timeout for all following requests against the Gateway.
+
+##### Remarks
+
+Default value is 5 seconds.
+            This value is passed straight through to a System.Net.HttpClient object without verification.
 
 <a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card-'></a>
 ### Authorize(amount,currency,cc) `method`
@@ -428,7 +466,7 @@ This method has no parameters.
 
 | Name | Description |
 | ---- | ----------- |
-| [Clearhaus.Util.ClrhsNetException](#!-Clearhaus-Util-ClrhsNetException 'Clearhaus.Util.ClrhsNetException') | Thrown if connection to the gateway fails. |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Thrown if connection to the gateway fails. |
 
 <a name='M-Clearhaus-Gateway-Account-Void-Clearhaus-Gateway-Transaction-Authorization-'></a>
 ### Void() `method`
@@ -453,6 +491,91 @@ Void (annul) an authorization
 
 This method has no parameters.
 
+<a name='T-Clearhaus-Gateway-AccountInfo'></a>
+## AccountInfo `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+Deserialization of account information supplied by an /account call against the gateway.
+
+<a name='P-Clearhaus-Gateway-AccountInfo-acquirer'></a>
+### acquirer `property`
+
+##### Summary
+
+Acquirer BIN information
+
+<a name='P-Clearhaus-Gateway-AccountInfo-country'></a>
+### country `property`
+
+##### Summary
+
+Merchant name
+
+<a name='P-Clearhaus-Gateway-AccountInfo-descriptor'></a>
+### descriptor `property`
+
+##### Summary
+
+The default `text_on_statement`
+
+<a name='P-Clearhaus-Gateway-AccountInfo-mcc'></a>
+### mcc `property`
+
+##### Summary
+
+Merchant Category Code
+
+<a name='P-Clearhaus-Gateway-AccountInfo-merchantID'></a>
+### merchantID `property`
+
+##### Summary
+
+ID of merchant in Clearhaus system.
+
+<a name='P-Clearhaus-Gateway-AccountInfo-name'></a>
+### name `property`
+
+##### Summary
+
+Merchant name
+
+<a name='P-Clearhaus-Gateway-AccountInfo-transactionRules'></a>
+### transactionRules `property`
+
+##### Summary
+
+Transaction rules in Clearhaus rule language
+
+<a name='T-Clearhaus-Gateway-Acquirer'></a>
+## Acquirer `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+Information about acquirer BIN
+
+<a name='P-Clearhaus-Gateway-Acquirer-mastercardBin'></a>
+### mastercardBin `property`
+
+##### Summary
+
+BIN for MasterCard systems
+
+<a name='P-Clearhaus-Gateway-Acquirer-visaBin'></a>
+### visaBin `property`
+
+##### Summary
+
+BIN for VISA systems
+
 <a name='T-Clearhaus-Gateway-Transaction-Authorization'></a>
 ## Authorization `type`
 
@@ -464,8 +587,8 @@ Clearhaus.Gateway.Transaction
 
 Class that represents a completed authorization.
 
-<a name='P-Clearhaus-Gateway-Transaction-Authorization-cscStatus'></a>
-### cscStatus `property`
+<a name='F-Clearhaus-Gateway-Transaction-Authorization-cscStatus'></a>
+### cscStatus `constants`
 
 ##### Summary
 
@@ -532,22 +655,22 @@ Clearhaus.Gateway.Transaction
 
 Base class for a Clearhaus transaction result
 
-<a name='P-Clearhaus-Gateway-Transaction-Base-id'></a>
-### id `property`
+<a name='F-Clearhaus-Gateway-Transaction-Base-id'></a>
+### id `constants`
 
 ##### Summary
 
 UUID identifying the transaction
 
-<a name='P-Clearhaus-Gateway-Transaction-Base-processedAt'></a>
-### processedAt `property`
+<a name='F-Clearhaus-Gateway-Transaction-Base-processedAt'></a>
+### processedAt `constants`
 
 ##### Summary
 
 Datetime the transaction was processed
 
-<a name='P-Clearhaus-Gateway-Transaction-Base-status'></a>
-### status `property`
+<a name='F-Clearhaus-Gateway-Transaction-Base-status'></a>
+### status `constants`
 
 ##### Summary
 
@@ -581,6 +704,97 @@ Represents a capture transaction
 ##### Summary
 
 The amount captured by this transaction
+
+<a name='T-Clearhaus-Gateway-Card'></a>
+## Card `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+Represents a credit card
+
+<a name='M-Clearhaus-Gateway-Card-#ctor'></a>
+### #ctor() `constructor`
+
+##### Summary
+
+Emtpy constructor
+
+##### Parameters
+
+This constructor has no parameters.
+
+<a name='M-Clearhaus-Gateway-Card-#ctor-System-String,System-String,System-String,System-String-'></a>
+### #ctor(pan,expireMonth,expireYear,csc) `constructor`
+
+##### Summary
+
+Construct a new card
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| pan | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Primary Account Number" |
+| expireMonth | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Month of card expiry |
+| expireYear | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Year of card expiry |
+| csc | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | CSC |
+
+<a name='F-Clearhaus-Gateway-Card-csc'></a>
+### csc `constants`
+
+##### Summary
+
+Card security code
+
+<a name='F-Clearhaus-Gateway-Card-expireMonth'></a>
+### expireMonth `constants`
+
+##### Summary
+
+Month of card expiry
+
+<a name='F-Clearhaus-Gateway-Card-expireYear'></a>
+### expireYear `constants`
+
+##### Summary
+
+Year of card expiry
+
+<a name='F-Clearhaus-Gateway-Card-pan'></a>
+### pan `constants`
+
+##### Summary
+
+Primary Account Number
+
+<a name='T-Clearhaus-Gateway-Constants'></a>
+## Constants `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+For gateway constants
+
+<a name='F-Clearhaus-Gateway-Constants-GatewayTestURL'></a>
+### GatewayTestURL `constants`
+
+##### Summary
+
+Testing Gateway endpoint
+
+<a name='F-Clearhaus-Gateway-Constants-GatewayURL'></a>
+### GatewayURL `constants`
+
+##### Summary
+
+Production Gateway endpoint
 
 <a name='T-Clearhaus-Gateway-Transaction-Credit'></a>
 ## Credit `type`
@@ -647,19 +861,55 @@ Clearhaus.Gateway.Transaction
 
 Status of a query
 
-<a name='P-Clearhaus-Gateway-Transaction-Status-code'></a>
-### code `property`
+<a name='F-Clearhaus-Gateway-Transaction-Status-code'></a>
+### code `constants`
 
 ##### Summary
 
 See http://docs.gateway.clearhaus.com/#Transactionstatuscodes
 
-<a name='P-Clearhaus-Gateway-Transaction-Status-message'></a>
-### message `property`
+<a name='F-Clearhaus-Gateway-Transaction-Status-message'></a>
+### message `constants`
 
 ##### Summary
 
 Message associated with status code
+
+<a name='T-Clearhaus-Gateway-TokenizedCard'></a>
+## TokenizedCard `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+Represents a card tokenized by Clearhaus transaction gateway.
+
+##### Remarks
+
+Card tokenization is deprecated.
+
+<a name='F-Clearhaus-Gateway-TokenizedCard-id'></a>
+### id `constants`
+
+##### Summary
+
+UUID
+
+<a name='F-Clearhaus-Gateway-TokenizedCard-last4'></a>
+### last4 `constants`
+
+##### Summary
+
+Last 4 digits
+
+<a name='F-Clearhaus-Gateway-TokenizedCard-scheme'></a>
+### scheme `constants`
+
+##### Summary
+
+Card scheme
 
 <a name='T-Clearhaus-Gateway-Transaction-Void'></a>
 ## Void `type`

@@ -13,9 +13,10 @@ namespace Clearhaus.Util
         private IList<KeyValuePair<string, string>> bodyParameters;
         private string url;
         private FormUrlEncodedContent content;
-        private HttpClient client;
+        public HttpClient client;
         private HttpClientHandler clientHandler;
 
+        // Support username/password is for Http Basic auth
         public RestRequestBuilder(Uri urlbase, string username, string password)
         {
             bodyParameters = new List<KeyValuePair<string, string>>();
@@ -25,7 +26,9 @@ namespace Clearhaus.Util
             };
 
             client = new HttpClient(clientHandler) {
-                BaseAddress = urlbase
+                BaseAddress = urlbase,
+                // 5 second timeout.
+                Timeout     = new TimeSpan(0, 0, 5)
             };
         }
 
@@ -55,11 +58,13 @@ namespace Clearhaus.Util
     }
 
     /// Help class for building rest requests.
-    public class RestRequest
+    public class RestRequest : IDisposable
     {
         private string url;
         private HttpContent content;
         private HttpClient client;
+
+        private bool disposed;
 
         public RestRequest(HttpClient client, HttpContent content , string url)
         {
@@ -91,6 +96,11 @@ namespace Clearhaus.Util
                 throw new ClrhsAuthException("Invalid API key");
             }
 
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                throw new ClrhsGatewayException("The remote server responded with InternalServerError");
+            }
+
             return response;
         }
 
@@ -111,6 +121,11 @@ namespace Clearhaus.Util
                 throw new ClrhsAuthException("Invalid API key");
             }
 
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                throw new ClrhsGatewayException("The remote server responded with InternalServerError");
+            }
+
             return response;
         }
 
@@ -118,6 +133,29 @@ namespace Clearhaus.Util
         {
             var task = content.ReadAsByteArrayAsync();
             return task.Result;
+        }
+
+        /**
+         * Implement IDispose interface
+         **/
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) {
+                return;
+            }
+
+            if (disposing) {
+                client.Dispose();
+                content.Dispose();
+            }
+
+            disposed = true;
         }
     }
 }
@@ -135,7 +173,12 @@ namespace Clearhaus
     {
         public ClrhsAuthException() : base() {}
         public ClrhsAuthException(string msg) : base(msg) {}
-        //public ClrhsAuthException(string msg, Exception exc) : base(msg, exc) {}
+    }
+
+    public class ClrhsGatewayException : ClrhsException
+    {
+        public ClrhsGatewayException() : base() {}
+        public ClrhsGatewayException(string msg) : base(msg) {}
     }
 
     public class ClrhsNetException : ClrhsException
