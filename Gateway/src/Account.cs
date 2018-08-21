@@ -267,7 +267,8 @@ namespace Clearhaus.Gateway
             builder.AddParameter("currency", currency);
 
             builder.AddParameter("card[pan]", cc.pan);
-            builder.AddParameter("card[csc]", cc.csc);
+            if (!String.IsNullOrEmpty(cc.csc) && !String.IsNullOrWhiteSpace(cc.csc))
+                builder.AddParameter("card[csc]", cc.csc);
             builder.AddParameter("card[expire_month]", cc.expireMonth);
             builder.AddParameter("card[expire_year]", cc.expireYear);
 
