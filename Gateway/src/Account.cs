@@ -197,7 +197,7 @@ namespace Clearhaus.Gateway
 
         private T POSTtoObject<T>(RestRequest req)
         {
-            if (!string.IsNullOrEmpty(rsaPrivateKey) && !string.IsNullOrEmpty(signingAPIKey))
+            if (!string.IsNullOrWhiteSpace(rsaPrivateKey) && !string.IsNullOrWhiteSpace(signingAPIKey))
             {
                 this.sign(req);
             }
@@ -267,8 +267,12 @@ namespace Clearhaus.Gateway
             builder.AddParameter("currency", currency);
 
             builder.AddParameter("card[pan]", cc.pan);
-            if (!String.IsNullOrEmpty(cc.csc) && !String.IsNullOrWhiteSpace(cc.csc))
+
+            if (!String.IsNullOrWhiteSpace(cc.csc))
+            {
                 builder.AddParameter("card[csc]", cc.csc);
+            }
+
             builder.AddParameter("card[expire_month]", cc.expireMonth);
             builder.AddParameter("card[expire_year]", cc.expireYear);
 
@@ -471,7 +475,7 @@ namespace Clearhaus.Gateway
             builder.AddParameter("card[pan]", cc.pan);
             builder.AddParameter("card[expire_month]", cc.expireMonth);
             builder.AddParameter("card[expire_year]", cc.expireYear);
-            if (!string.IsNullOrEmpty(cc.csc))
+            if (!string.IsNullOrWhiteSpace(cc.csc))
             {
                 builder.AddParameter("card[csc]", cc.csc);
             }
