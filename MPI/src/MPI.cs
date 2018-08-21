@@ -9,6 +9,9 @@ using Newtonsoft.Json;
 
 namespace Clearhaus.MPI
 {
+    /// <summary>
+    /// MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as a MPI service.
+    /// </summary>
     public class MPI
     {
         private string apikey;
@@ -17,6 +20,7 @@ namespace Clearhaus.MPI
         /// <summary>
         /// Temporary documentation
         /// </summary>
+        /// <param name="apikey">UUID representing your 3dsecure.io account</param>
         public MPI(string apikey)
         {
             this.apikey = apikey;
@@ -28,11 +32,20 @@ namespace Clearhaus.MPI
         ///
         /// <see cref="Constants.MPIURL"/>
         /// </summary>
+        /// <param name="endpoint">
+        /// URL to use as endpoint
+        /// </param>
         public void SetEndpoint(string endpoint)
         {
             this.endpoint = new Uri(endpoint);
         }
 
+        /// <summary>
+        /// Query the MPI service, returning <c>PARes</c> and <c>ACSUrl</c> to allow continuing the 3DS flow.
+        /// </summary>
+        /// <param name="builder">
+        /// The information associated with the 3D-Secure flow
+        /// </param>
         public EnrollmentStatus EnrollCheck(EnrollCheckBuilder builder)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
@@ -55,6 +68,12 @@ namespace Clearhaus.MPI
             return status;
         }
 
+        /// <summary>
+        /// Checks the <c>PARes</c>, returning results.
+        /// </summary>
+        /// <param name="pares">
+        /// The <c>PARes</c> (possibly) returned from the EnrollCheck call.
+        /// </param>
         public CheckResponse CheckPARes(string pares)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");

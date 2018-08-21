@@ -67,7 +67,7 @@ namespace Clearhaus.MPI.Test
 
             var checkresponse = mpi.CheckPARes(pares);
 
-            Assert.Equal(checkresponse.status, "Y");
+            Assert.Equal("Y", checkresponse.status);
         }
     }
 }
