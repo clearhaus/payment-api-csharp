@@ -27,8 +27,6 @@ namespace Clearhaus.Util
 
             client = new HttpClient(clientHandler) {
                 BaseAddress = urlbase,
-                // 5 second timeout.
-                Timeout     = new TimeSpan(0, 0, 5)
             };
         }
 
