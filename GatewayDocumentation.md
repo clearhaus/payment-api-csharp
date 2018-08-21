@@ -95,59 +95,55 @@ Represents an account that integrates towards the Clearhaus gateway.
 This is an example of how to create an authorization and capture money.
 
 ```C#
-using Clearhaus.Gateway;
-             using Clearhaus.Gateway.Transaction.Options;
-            
-             public static void main()
-             {
-                 var apiKey = "My Secret UUID";
-                 var card = new Card
-                 {
-                     pan         = "some PAN",
-                     expireMonth = "12",
-                     expireYear  = "2047",
-                     csc         = "666"
-                 };
-            
-                 var account = new Account(apiKey);
-            
-                 var authOptions = new AuthorizationOptions
-                 {
-                     recurring = true,
-                     reference = "sdg7SF12KJHjj"
-                 };
-            
-                 Authorization myAuth;
-                 try
-                 {
-                     myAuth = new Authorize("100", "DKK", card, authOptions);
-                 }
-                 catch(ClrhsNetException e)
-                 {
-                     // Failure connecting to clearhaus.
-                     // You should retry this.
-                     return;
-                 }
-                 catch(ClrhsAuthException e)
-                 {
-                     // ApiKey was invalid
-                     // You need to change the apiKey.
-                     // This can be avoided by checking the key first:
-                     // account.ValidAPIKey() == true
-                     return;
-                 }
-                 catch(ClrhsGatewayException e)
-                 {
-                     // Something was funky with the Clearhaus gateway
-                     // You could retry this, but maybe give it a few seconds.
-                     return;
-                 }
-            
-                 if (!myAuth.IsSuccess())
-                 {
-                     // The statuscode returned implies that an error occurred.
-                 }
-             }
+ using Clearhaus.Gateway;
+ using Clearhaus.Gateway.Transaction.Options;
+ public static void main()
+ {
+     var apiKey = "My Secret UUID";
+     var card = new Card
+     {
+         pan         = "some PAN",
+         expireMonth = "12",
+         expireYear  = "2047",
+         csc         = "666"
+     };
+     var account = new Account(apiKey);
+     var authOptions = new AuthorizationOptions
+     {
+         recurring = true,
+         reference = "sdg7SF12KJHjj"
+     };
+     Authorization myAuth;
+     try
+     {
+         myAuth = new Authorize("100", "DKK", card, authOptions);
+     }
+     catch(ClrhsNetException e)
+     {
+         // Failure connecting to clearhaus.
+         // You should retry this.
+         return;
+     }
+     catch(ClrhsAuthException e)
+     {
+         // ApiKey was invalid
+         // You need to change the apiKey.
+         // This can be avoided by checking the key first:
+         // account.ValidAPIKey() == true
+         return;
+     }
+     catch(ClrhsGatewayException e)
+     {
+         // Something was funky with the Clearhaus gateway
+         // You could retry this, but maybe give it a few seconds.
+         return;
+     }
+     if (!myAuth.IsSuccess())
+     {
+         // The statuscode returned implies that an error occurred.
+     }
+ }
+  
 ```
 
 <a name='M-Clearhaus-Gateway-Account-#ctor-System-String-'></a>
@@ -169,7 +165,7 @@ Creates an account object with associated apiKey.
 ##### Summary
 
 URL address of Clearhaus Gateway. By default `Constants.GatewayURL`.
-            .
+.
 
 <a name='F-Clearhaus-Gateway-Account-Timeout'></a>
 ### Timeout `constants`
@@ -181,7 +177,7 @@ Set the timeout for all following requests against the Gateway.
 ##### Remarks
 
 Default value is 5 seconds.
-            This value is passed straight through to a System.Net.HttpClient object without verification.
+This value is passed straight through to a System.Net.HttpClient object without verification.
 
 <a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card-'></a>
 ### Authorize(amount,currency,cc) `method`
@@ -195,7 +191,7 @@ Default value is 5 seconds.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
-| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount` is specified |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified |
 | cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
 
 <a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-'></a>
@@ -204,14 +200,14 @@ Default value is 5 seconds.
 ##### Summary
 
 Creates an authorization against the Gateway.
-            See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
+See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
 
 ##### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
-| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount` is specified |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified |
 | cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
 | opts | [Clearhaus.Gateway.Transaction.Options.AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions') | Optional parameters for authorizations or null |
 
@@ -290,7 +286,7 @@ Creates an authorization against the Gateway.
 ##### Summary
 
 Capture reserved money.
-            See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
+See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
 
 ##### Parameters
 
@@ -425,7 +421,7 @@ Helper to ensure apikey is applied to all rest calls.
 ##### Summary
 
 Refund funds captured on an authorization.
-            https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
+https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
 
 ##### Parameters
 
@@ -441,8 +437,8 @@ Refund funds captured on an authorization.
 ##### Summary
 
 Sets the Clearhaus API key and associated rsaPrivateKey to be
-            used for signing. When these parameters are set, all requests are
-            signed.
+used for signing. When these parameters are set, all requests are
+signed.
 
 ##### Parameters
 
@@ -485,7 +481,7 @@ This method has no parameters.
 ##### Summary
 
 Void (annul) an authorization
-            See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#voids
+See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#voids
 
 ##### Parameters
 

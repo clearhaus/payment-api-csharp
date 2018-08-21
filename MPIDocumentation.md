@@ -27,8 +27,8 @@ Namespace for constants
 ##### Summary
 
 In theory a testing endpoint for the clearhaus MPI service, it is
-            practically non-functional since DS test servers appear to be
-            mostly non-funcional.
+practically non-functional since DS test servers appear to be
+mostly non-funcional.
 
 <a name='F-Clearhaus-MPI-Constants-MPIURL'></a>
 ### MPIURL `constants`
@@ -61,8 +61,8 @@ This constructor has no parameters.
 ##### Summary
 
 Override the default 3DSecure endpoint.
-            
-             [MPIURL](#F-Clearhaus-MPI-Constants-MPIURL 'Clearhaus.MPI.Constants.MPIURL')
+
+ [MPIURL](#F-Clearhaus-MPI-Constants-MPIURL 'Clearhaus.MPI.Constants.MPIURL')
 
 ##### Parameters
 
