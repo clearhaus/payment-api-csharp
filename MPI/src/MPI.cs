@@ -12,6 +12,47 @@ namespace Clearhaus.MPI
     /// <summary>
     /// MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as a MPI service.
     /// </summary>
+    /// <example>
+    /// <code lang="C#">
+    /// using Clearhaus.MPI;
+    /// using Clearhaus.MPI.Builder;
+    /// using Clearhaus.MPI.Representers;
+    ///
+    /// string apiKey = "SOME UUID APIKEY";
+    ///
+    /// var mpiAccount = new MPI(apiKey);
+    ///
+    /// var builder = new EnrollCheckBuilder {
+    ///     amount              = "100",
+    ///     currency            = "DKK",
+    ///     orderID             = "SOME ID",
+    ///     cardholderIP        = "1.1.1.1",
+    ///     cardNumber          = "SOME PAN",
+    ///     cardExpireMonth     = "04",
+    ///     cardExpireYear      = "2030",
+    ///     merchantAcquirerBin = "SOME BIN",
+    ///     merchantCountry     = "DK",
+    ///     merchantID          = "SOME ID",
+    ///     merchantName        = "MyMerchant",
+    ///     merchantUrl         = "http://mymerchant.com"
+    /// };
+    ///
+    /// EnrollmentStatus response;
+    /// try
+    /// {
+    ///     response = mpiAccount.EnrollCheck(builder);
+    /// }
+    /// catch(ClrhsNetException e)
+    /// {
+    ///     // Handle
+    /// }
+    ///
+    /// if (response.enrolled == "Y")
+    /// {
+    ///     // Continue 3D-Secure procedure
+    /// }
+    /// </code>
+    /// </example>
     public class MPI
     {
         private string apikey;
