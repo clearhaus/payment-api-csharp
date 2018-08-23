@@ -10,7 +10,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetSigningStagingAccount();
             var card = Util.GetStagingCard();
 
-            card.csc = "";
+            card.csc = null;
 
             var auth = account.Authorize("100", "DKK", card);
 
