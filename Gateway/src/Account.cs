@@ -84,7 +84,7 @@ namespace Clearhaus.Gateway
     /// </example>
     /// <remarks>
     /// Requests made with valid parameters will not throw exceptions, unless the invalid parameter is the API key.
-    /// Result objects have a <c>status</c> field which contains a <c>code</c> and a <c>message</c>
+    /// Result objects have a <c>status</c> field which contains a <c>code</c> and a <c>message</c>.
     /// These codes/messages can be looked up here https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#transaction-status-codes.
     /// </remarks>
     public class Account
