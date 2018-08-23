@@ -147,16 +147,18 @@ namespace Clearhaus.Gateway
         {
             var builder = newRestBuilder("");
             var req = builder.Ready();
-            var resp = req.GET();
+            System.Net.Http.HttpResponseMessage resp;
 
-            if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            try
+            {
+                resp = req.GET();
+            }
+            catch(ClrhsAuthException)
             {
                 return false;
-            } else
-            {
-                return true;
             }
 
+            return resp.IsSuccessStatusCode;
         }
 
         /// <summary>
@@ -205,11 +207,6 @@ namespace Clearhaus.Gateway
             var response = req.POST();
 
             req.Dispose();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception(response.ReasonPhrase);
-            }
 
             return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
         }

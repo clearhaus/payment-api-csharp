@@ -19,6 +19,10 @@ namespace Clearhaus.Gateway.Transaction.Options
         /// <summary>Authorization reference</summary>
         public string reference;
 
+        /// <summary>Proof of 3D-Secure participation</summary>
+        /// <remarks>Payer Authentication Response is the message returned by ACS</remarks>
+        public string pares;
+
         /// <summary>
         /// Returns the parameters with correct keys.
         /// </summary>
@@ -43,6 +47,11 @@ namespace Clearhaus.Gateway.Transaction.Options
             if (!string.IsNullOrWhiteSpace(reference))
             {
                 l.Add(new KeyValuePair<string,string>("reference", reference));
+            }
+
+            if (!string.IsNullOrWhiteSpace(pares))
+            {
+                l.Add(new KeyValuePair<string,string>("card[pares]", pares));
             }
 
             return l;

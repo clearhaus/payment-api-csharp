@@ -84,9 +84,19 @@ namespace Clearhaus.Util
             {
                 response = client.PostAsync(url, content).Result;
             }
-            catch(HttpRequestException e)
+            catch(AggregateException ae)
             {
-                throw new ClrhsNetException(e.Message, e);
+                ae.Handle((x) =>
+                {
+                    if (x is HttpRequestException)
+                    {
+                       throw new ClrhsNetException(x.Message, x);
+                    }
+
+                    return false;
+                });
+
+                throw new ClrhsException(ae.Message, ae);
             }
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -109,9 +119,19 @@ namespace Clearhaus.Util
             {
                 response = client.GetAsync(url).Result;
             }
-            catch(HttpRequestException e)
+            catch(AggregateException ae)
             {
-                throw new ClrhsNetException(e.Message, e);
+                ae.Handle((x) =>
+                {
+                    if (x is HttpRequestException)
+                    {
+                       throw new ClrhsNetException(x.Message, x);
+                    }
+
+                    return false;
+                });
+
+                throw new ClrhsException(ae.Message, ae);
             }
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)

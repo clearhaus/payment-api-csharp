@@ -1,44 +1,15 @@
-using System;
 using Xunit;
 
 namespace Clearhaus.Gateway.Test
 {
-    public class FunctionTests
+    public class Basic
     {
         private Gateway.Account account;
 
-        public FunctionTests()
+        public Basic()
         {
-            account = new Gateway.Account(getValidAPIKey());
+            account = new Gateway.Account(Util.GetValidAPIKey());
             account.gatewayURL = Constants.GatewayTestURL;
-        }
-
-        private string getPrivateKey()
-        {
-            var signingKey = Environment.GetEnvironmentVariable("RSAKEY");
-
-            if (signingKey == null)
-            {
-                throw new System.ApplicationException("No RSAKEY in environment");
-            }
-
-            return signingKey;
-        }
-
-        public Card getStagingCard()
-        {
-            return new Card("4111111111111111", "12", "2020", "584");
-        }
-
-        public string getValidAPIKey()
-        {
-            var apiKey = System.Environment.GetEnvironmentVariable("APIKEY");
-
-            if (apiKey == null) {
-                throw new System.ApplicationException("No APIKey found in environment");
-            }
-
-            return apiKey;
         }
 
         [Fact]
@@ -58,7 +29,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void ItCreatesAuthorization()
         {
-            var card = getStagingCard();
+            var card = Util.GetStagingCard();
 
             var auth = account.Authorize("100", "DKK", card);
 
@@ -69,7 +40,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void ItVoidsAuthorization()
         {
-            var card = getStagingCard();
+            var card = Util.GetStagingCard();
 
             var auth = account.Authorize("100", "DKK", card);
 
@@ -81,7 +52,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void ItCapturesAuthorization()
         {
-            var card = getStagingCard();
+            var card = Util.GetStagingCard();
 
             var auth = account.Authorize("100", "DKK", card);
 
@@ -93,7 +64,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void ItRefundsAuthorization()
         {
-            var card = getStagingCard();
+            var card = Util.GetStagingCard();
 
             var auth = account.Authorize("100", "DKK", card);
             account.Capture(auth, "100");
@@ -106,7 +77,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void ItTokenizesCard()
         {
-            var card = getStagingCard();
+            var card = Util.GetStagingCard();
 
             var credit = account.Credit("100", "DKK", card, "", "");
 
@@ -116,8 +87,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void CreditWorks()
         {
-            account.SigningKeys(getValidAPIKey(), getPrivateKey());
-            var card = getStagingCard();
+            var card = Util.GetStagingCard();
 
             var credit = account.Credit("100", "DKK", card, "", "");
 

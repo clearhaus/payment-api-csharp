@@ -43,6 +43,7 @@
   - [cscStatus](#F-Clearhaus-Gateway-Transaction-Authorization-cscStatus 'Clearhaus.Gateway.Transaction.Authorization.cscStatus')
 - [AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions')
   - [ip](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-ip 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.ip')
+  - [pares](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-pares 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.pares')
   - [recurring](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-recurring 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.recurring')
   - [reference](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-reference 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.reference')
   - [textOnStatement](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-textOnStatement 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.textOnStatement')
@@ -607,6 +608,17 @@ Optionals for Authorization transaction, .
 ##### Summary
 
 IPv4/IPv6 address of cardholder initiating authorization
+
+<a name='F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-pares'></a>
+### pares `constants`
+
+##### Summary
+
+Proof of 3D-Secure participation
+
+##### Remarks
+
+Payer Authentication Response is the message returned by ACS
 
 <a name='F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-recurring'></a>
 ### recurring `constants`
