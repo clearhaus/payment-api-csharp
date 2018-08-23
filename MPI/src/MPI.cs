@@ -46,6 +46,15 @@ namespace Clearhaus.MPI
     /// {
     ///     // Handle
     /// }
+    /// catch(ClrhsGatewayException e)
+    /// {
+    ///     // Something is wrong on server-side
+    /// }
+    /// catch(ClrhsAuthException e)
+    /// {
+    ///     // Invalid APIKey. This should not happen if you have tested your
+    ///     // key.
+    /// }
     ///
     /// if (response.enrolled == "Y")
     /// {
@@ -87,6 +96,9 @@ namespace Clearhaus.MPI
         /// <param name="builder">
         /// The information associated with the 3D-Secure flow
         /// </param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public EnrollmentStatus EnrollCheck(EnrollCheckBuilder builder)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
@@ -115,6 +127,9 @@ namespace Clearhaus.MPI
         /// <param name="pares">
         /// The <c>PARes</c> (possibly) returned from the EnrollCheck call.
         /// </param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public CheckResponse CheckPARes(string pares)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");

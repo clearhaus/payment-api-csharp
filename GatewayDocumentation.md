@@ -152,7 +152,7 @@ This is an example of how to create an authorization and capture money.
 ##### Remarks
 
 Requests made with valid parameters will not throw exceptions, unless the invalid parameter is the API key.
- Result objects have a `status`field which contains a `code`and a `message`
+ Result objects have a `status`field which contains a `code`and a `message`.
  These codes/messages can be looked up here https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#transaction-status-codes.
 
 <a name='M-Clearhaus-Gateway-Account-#ctor-System-String-'></a>

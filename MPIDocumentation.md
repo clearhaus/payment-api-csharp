@@ -310,6 +310,53 @@ Clearhaus.MPI
 
 MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as a MPI service.
 
+##### Example
+
+```C#
+ using Clearhaus.MPI;
+ using Clearhaus.MPI.Builder;
+ using Clearhaus.MPI.Representers;
+ string apiKey = "SOME UUID APIKEY";
+ var mpiAccount = new MPI(apiKey);
+ var builder = new EnrollCheckBuilder {
+     amount              = "100",
+     currency            = "DKK",
+     orderID             = "SOME ID",
+     cardholderIP        = "1.1.1.1",
+     cardNumber          = "SOME PAN",
+     cardExpireMonth     = "04",
+     cardExpireYear      = "2030",
+     merchantAcquirerBin = "SOME BIN",
+     merchantCountry     = "DK",
+     merchantID          = "SOME ID",
+     merchantName        = "MyMerchant",
+     merchantUrl         = "http://mymerchant.com"
+ };
+ EnrollmentStatus response;
+ try
+ {
+     response = mpiAccount.EnrollCheck(builder);
+ }
+ catch(ClrhsNetException e)
+ {
+     // Handle
+ }
+ catch(ClrhsGatewayException e)
+ {
+     // Something is wrong on server-side
+ }
+ catch(ClrhsAuthException e)
+ {
+     // Invalid APIKey. This should not happen if you have tested your
+     // key.
+ }
+ if (response.enrolled == "Y")
+ {
+     // Continue 3D-Secure procedure
+ }
+  
+```
+
 <a name='M-Clearhaus-MPI-MPI-#ctor-System-String-'></a>
 ### #ctor(apikey) `constructor`
 
@@ -336,6 +383,14 @@ Checks the `PARes`, returning results.
 | ---- | ---- | ----------- |
 | pares | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | The `PARes`(possibly) returned from the EnrollCheck call. |
 
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+
 <a name='M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder-'></a>
 ### EnrollCheck(builder) `method`
 
@@ -348,6 +403,14 @@ Query the MPI service, returning `PARes`and `ACSUrl`to allow continuing the 3DS 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | builder | [Clearhaus.MPI.Builder.EnrollCheckBuilder](#T-Clearhaus-MPI-Builder-EnrollCheckBuilder 'Clearhaus.MPI.Builder.EnrollCheckBuilder') | The information associated with the 3D-Secure flow |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
 
 <a name='M-Clearhaus-MPI-MPI-SetEndpoint-System-String-'></a>
 ### SetEndpoint(endpoint) `method`
