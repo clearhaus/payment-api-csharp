@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 
-namespace Clearhaus.Gateway.Transaction.Options
+namespace Clearhaus.Gateway
 {
     /// <summary>
     /// Optionals for Authorization transaction, <see href="http://docs.gateway.clearhaus.com/#authorizations"/>.
     /// </summary>
-    public class AuthorizationOptions
+    public class AuthorizationRequestOptions
     {
         /// <summary>Mark authorization as recurring</summary>
-        public bool   recurring;
+        public bool recurring;
 
         /// <summary>IPv4/IPv6 address of cardholder initiating authorization</summary>
         public string ip;

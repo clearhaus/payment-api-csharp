@@ -13,7 +13,6 @@ using Newtonsoft.Json;
 
 using Clearhaus.Util;
 using Clearhaus.Gateway.Transaction;
-using Clearhaus.Gateway.Transaction.Options;
 
 namespace Clearhaus.Gateway
 {
@@ -43,7 +42,7 @@ namespace Clearhaus.Gateway
     ///
     ///     var account = new Account(apiKey);
     ///
-    ///     var authOptions = new AuthorizationOptions
+    ///     var authOptions = new AuthorizationRequestOptions
     ///     {
     ///         recurring = true,
     ///         reference = "sdg7SF12KJHjj"
@@ -232,7 +231,7 @@ namespace Clearhaus.Gateway
          */
 
         /// <summary>
-        /// <see cref="Authorize(string, string, Card, string, AuthorizationOptions)"/>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
         /// <param name="currency">Currency in which <c>amount</c> is specified</param>
@@ -243,7 +242,7 @@ namespace Clearhaus.Gateway
         }
 
         /// <summary>
-        /// <see cref="Authorize(string, string, Card, string, AuthorizationOptions)"/>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
         /// <param name="currency">Currency in which <c>amount</c> is specified</param>
@@ -255,13 +254,13 @@ namespace Clearhaus.Gateway
         }
 
         /// <summary>
-        /// <see cref="Authorize(string, string, Card, string, AuthorizationOptions)"/>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
         /// <param name="currency">Currency in which <c>amount</c> is specified</param>
         /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
         /// <param name="opts">Optional parameters for authorizations or null</param>
-        public Authorization Authorize(string amount, string currency, Card cc, AuthorizationOptions opts)
+        public Authorization Authorize(string amount, string currency, Card cc, AuthorizationRequestOptions opts)
         {
             return Authorize(amount, currency, cc, "", opts);
         }
@@ -281,7 +280,7 @@ namespace Clearhaus.Gateway
         /* TODO:
          * - payment-methods
          */
-        public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationOptions opts)
+        public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
         {
             var builder = newRestBuilder("authorizations/");
 

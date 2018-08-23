@@ -36,7 +36,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var options = new Gateway.Transaction.Options.AuthorizationOptions {
+            var options = new Gateway.AuthorizationRequestOptions {
                 ip = "1.1.1.1",
                 textOnStatement = "test text",
                 reference = "afhAsdgg"
@@ -53,7 +53,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var options = new Gateway.Transaction.Options.AuthorizationOptions {
+            var options = new Gateway.AuthorizationRequestOptions {
                 ip = "1.1.1.1",
                 reference = "afhAsdgg"
             };
@@ -69,7 +69,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var options = new Gateway.Transaction.Options.AuthorizationOptions {
+            var options = new Gateway.AuthorizationRequestOptions {
                 recurring = true
             };
 
@@ -110,7 +110,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var options = new Gateway.Transaction.Options.AuthorizationOptions {
+            var options = new Gateway.AuthorizationRequestOptions {
                 textOnStatement = "This is a really long text on statement"
             };
 
