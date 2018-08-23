@@ -1,7 +1,4 @@
-using System;
 using Xunit;
-
-using Clearhaus.Util;
 
 namespace Clearhaus.Gateway.Test
 {
@@ -140,11 +137,9 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var options = new Gateway.Transaction.Options.AuthorizationOptions {
-                pares = "This is not a pares"
-            };
+            var pares = "This is not a pares";
 
-            var auth = account.Authorize("100", "DKK", card, options);
+            var auth = account.Authorize("100", "DKK", card, pares);
 
             Assert.False(auth.IsSuccess(), "Invalid pares should fail");
         }

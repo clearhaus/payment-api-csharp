@@ -78,6 +78,7 @@ namespace Clearhaus.Gateway
     ///     if (!myAuth.IsSuccess())
     ///     {
     ///         // The statuscode returned implies that an error occurred.
+    ///         Console.WriteLine(auth.status.message);
     ///     }
     /// }
     /// </code>
@@ -232,14 +233,38 @@ namespace Clearhaus.Gateway
          */
 
         /// <summary>
-        /// <see cref="Authorize(string, string, Card, AuthorizationOptions)"/>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationOptions)"/>
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
         /// <param name="currency">Currency in which <c>amount</c> is specified</param>
         /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
         public Authorization Authorize(string amount, string currency, Card cc)
         {
-            return Authorize(amount, currency, cc, null);
+            return Authorize(amount, currency, cc, "", null);
+        }
+
+        /// <summary>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationOptions)"/>
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
+        /// <param name="PARes">3D-Secure result</param>
+        public Authorization Authorize(string amount, string currency, Card cc, string PARes)
+        {
+            return Authorize(amount, currency, cc, PARes, null);
+        }
+
+        /// <summary>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationOptions)"/>
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
+        /// <param name="opts">Optional parameters for authorizations or null</param>
+        public Authorization Authorize(string amount, string currency, Card cc, AuthorizationOptions opts)
+        {
+            return Authorize(amount, currency, cc, "", opts);
         }
 
         /// <summary>
@@ -249,14 +274,12 @@ namespace Clearhaus.Gateway
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
         /// <param name="currency">Currency in which <c>amount</c> is specified</param>
         /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
+        /// <param name="PARes">3D-Secure result</param>
         /// <param name="opts">Optional parameters for authorizations or null</param>
         /* TODO:
-         * - recurring
-         * - text_on_statement
-         * - reference
          * - payment-methods
          */
-        public Authorization Authorize(string amount, string currency, Card cc, AuthorizationOptions opts)
+        public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationOptions opts)
         {
             var builder = newRestBuilder("authorizations/");
 
@@ -268,6 +291,11 @@ namespace Clearhaus.Gateway
             if (!String.IsNullOrWhiteSpace(cc.csc))
             {
                 builder.AddParameter("card[csc]", cc.csc);
+            }
+
+            if (!String.IsNullOrWhiteSpace(PARes))
+            {
+                builder.AddParameter("card[pares]", PARes);
             }
 
             builder.AddParameter("card[expire_month]", cc.expireMonth);

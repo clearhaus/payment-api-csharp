@@ -8,7 +8,9 @@
   - [gatewayURL](#F-Clearhaus-Gateway-Account-gatewayURL 'Clearhaus.Gateway.Account.gatewayURL')
   - [Timeout](#F-Clearhaus-Gateway-Account-Timeout 'Clearhaus.Gateway.Account.Timeout')
   - [Authorize(amount,currency,cc)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card)')
+  - [Authorize(amount,currency,cc,PARes)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String)')
   - [Authorize(amount,currency,cc,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
+  - [Authorize(amount,currency,cc,PARes,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
   - [Capture(id)](#M-Clearhaus-Gateway-Account-Capture-System-String- 'Clearhaus.Gateway.Account.Capture(System.String)')
   - [Capture(auth)](#M-Clearhaus-Gateway-Account-Capture-Clearhaus-Gateway-Transaction-Authorization- 'Clearhaus.Gateway.Account.Capture(Clearhaus.Gateway.Transaction.Authorization)')
   - [Capture(id,amount)](#M-Clearhaus-Gateway-Account-Capture-System-String,System-String- 'Clearhaus.Gateway.Account.Capture(System.String,System.String)')
@@ -43,7 +45,6 @@
   - [cscStatus](#F-Clearhaus-Gateway-Transaction-Authorization-cscStatus 'Clearhaus.Gateway.Transaction.Authorization.cscStatus')
 - [AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions')
   - [ip](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-ip 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.ip')
-  - [pares](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-pares 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.pares')
   - [recurring](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-recurring 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.recurring')
   - [reference](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-reference 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.reference')
   - [textOnStatement](#F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-textOnStatement 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions.textOnStatement')
@@ -142,6 +143,7 @@ This is an example of how to create an authorization and capture money.
      if (!myAuth.IsSuccess())
      {
          // The statuscode returned implies that an error occurred.
+         Console.WriteLine(auth.status.message);
      }
  }
   
@@ -185,7 +187,7 @@ This value is passed straight through to a System.Net.HttpClient object without 
 
 ##### Summary
 
-[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
+[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
 
 ##### Parameters
 
@@ -195,8 +197,40 @@ This value is passed straight through to a System.Net.HttpClient object without 
 | currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified |
 | cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
 
+<a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String-'></a>
+### Authorize(amount,currency,cc,PARes) `method`
+
+##### Summary
+
+[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified |
+| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
+| PARes | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | 3D-Secure result |
+
 <a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-'></a>
 ### Authorize(amount,currency,cc,opts) `method`
+
+##### Summary
+
+[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.Transaction.Options.AuthorizationOptions)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified |
+| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
+| opts | [Clearhaus.Gateway.Transaction.Options.AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions') | Optional parameters for authorizations or null |
+
+<a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-'></a>
+### Authorize(amount,currency,cc,PARes,opts) `method`
 
 ##### Summary
 
@@ -210,6 +244,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency` |
 | currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified |
 | cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') |
+| PARes | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | 3D-Secure result |
 | opts | [Clearhaus.Gateway.Transaction.Options.AuthorizationOptions](#T-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions 'Clearhaus.Gateway.Transaction.Options.AuthorizationOptions') | Optional parameters for authorizations or null |
 
 <a name='M-Clearhaus-Gateway-Account-Capture-System-String-'></a>
@@ -608,17 +643,6 @@ Optionals for Authorization transaction, .
 ##### Summary
 
 IPv4/IPv6 address of cardholder initiating authorization
-
-<a name='F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-pares'></a>
-### pares `constants`
-
-##### Summary
-
-Proof of 3D-Secure participation
-
-##### Remarks
-
-Payer Authentication Response is the message returned by ACS
 
 <a name='F-Clearhaus-Gateway-Transaction-Options-AuthorizationOptions-recurring'></a>
 ### recurring `constants`
