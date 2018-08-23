@@ -2,7 +2,7 @@ using Xunit;
 
 namespace Clearhaus.Gateway.Test
 {
-    public class Authorization
+    public class AuthorizationTests
     {
         [Fact]
         public void CanOmitCSCWhenSignedAndTrusted()
