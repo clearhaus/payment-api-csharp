@@ -83,6 +83,11 @@ namespace Clearhaus.Gateway
     /// }
     /// </code>
     /// </example>
+    /// <remarks>
+    /// Requests made with valid parameters will not throw exceptions, unless the invalid parameter is the API key.
+    /// Result objects have a <c>status</c> field which contains a <c>code</c> and a <c>message</c>
+    /// These codes/messages can be looked up here https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#transaction-status-codes.
+    /// </remarks>
     public class Account
     {
         internal string apiKey;
@@ -162,15 +167,6 @@ namespace Clearhaus.Gateway
             return resp.IsSuccessStatusCode;
         }
 
-        /// <summary>
-        /// Helper to ensure apikey is applied to all rest calls.
-        /// </summary>
-        /// <param name="path">
-        /// URL path with format options like string.Format.
-        /// </param>
-        /// <param name="args">
-        /// String arguments to format string path.
-        /// </param>
         private RestRequestBuilder newRestBuilder(string path, params string[] args)
         {
             var builder = new RestRequestBuilder(new Uri(gatewayURL), apiKey, "");
@@ -221,6 +217,9 @@ namespace Clearhaus.Gateway
         /// <returns>
         /// An AccountInfo object
         /// </returns>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public AccountInfo FetchAccountInformation()
         {
             var builder = newRestBuilder("account/");
@@ -276,6 +275,9 @@ namespace Clearhaus.Gateway
         /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
         /// <param name="PARes">3D-Secure result</param>
         /// <param name="opts">Optional parameters for authorizations or null</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         /* TODO:
          * - payment-methods
          */
@@ -325,6 +327,9 @@ namespace Clearhaus.Gateway
         /// Void (annul) an authorization
         /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#voids
         /// </summary>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public Transaction.Void Void(string authorizationID)
         {
             var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
@@ -391,6 +396,9 @@ namespace Clearhaus.Gateway
         /// <param name="id">UUID of authorization</param>
         /// <param name="amount">Amount to capture</param>
         /// <param name="textOnStatement">Text to appear on cardholder bank statement</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public Capture Capture(string id, string amount, string textOnStatement)
         {
 
@@ -469,6 +477,9 @@ namespace Clearhaus.Gateway
         /// <param name="id">UUID of authorization</param>
         /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
         /// <param name="textOnStatement">Overrides text on authorization</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public Refund Refund(string id, string amount, string textOnStatement)
         {
             var builder = newRestBuilder( "authorizations/{0}/refunds", id);
@@ -518,6 +529,9 @@ namespace Clearhaus.Gateway
         /// <param name="cc">Card to transfer to</param>
         /// <param name="textOnStatement">Statement on cardholders bank account</param>
         /// <param name="reference">External reference</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
         public Credit Credit(string amount, string currency, Card cc, string textOnStatement, string reference)
         {
             // The API currently needs us to create a `cards/` resource before
