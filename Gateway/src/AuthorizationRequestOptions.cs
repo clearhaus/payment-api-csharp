@@ -20,7 +20,7 @@ namespace Clearhaus.Gateway
         public string reference;
 
         /// <summary>
-        /// Returns the parameters with correct keys.
+        /// Returns the parameters with correct keys, used internally.
         /// </summary>
         public IList<KeyValuePair<string, string>> GetParameters()
         {
