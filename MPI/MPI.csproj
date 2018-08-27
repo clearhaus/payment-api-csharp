@@ -8,20 +8,6 @@
 
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <DocumentationMarkdown>..\MPIDocumentation.md</DocumentationMarkdown>
-
-        <!-- Information for `dotnet pack`-->
-        <PackageId>Clearhaus.API.MPI</PackageId>
-        <PackageVersion>0.0.5</PackageVersion>
-        <Authors>kse</Authors>
-        <Owners>kse</Owners>
-        <Title>Clearhaus MPI API</Title>
-        <Description>
-            API for Clearhaus A/S MPI gateway.
-            Documentation can be found at https://github.com/clearhaus/payment-api-csharp/blob/master/MPIDocumentation.md.
-        </Description>
-        <PackageTags>3dsecure; mpi; finance; ecommerce; e-commerce; 3-d-secure</PackageTags>
-        <PackageProjectUrl>https://www.clearhaus.com</PackageProjectUrl>
-        <PackageIconUrl>https://www.clearhaus.com/favicon-64x64.png</PackageIconUrl>
     </PropertyGroup>
 
     <ItemGroup>

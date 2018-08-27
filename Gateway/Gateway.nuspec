@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Clearhaus.API.Gateway</id>
+    <version>0.0.8</version>
+    <title>Clearhaus Gateway API</title>
+    <authors>kse,mt-clearhaus</authors>
+    <owners>kse,mt-clearhaus</owners>
+    <projectUrl>https://www.clearhaus.com</projectUrl>
+    <iconUrl>https://www.clearhaus.com/favicon-64x64.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>API for Clearhaus A/S acquiring gateway. Documentation can be found at https://github.com/clearhaus/payment-api-csharp/blob/master/GatewayDocumentation.md.</description>
+    <copyright>Clearhaus A/S</copyright>
+    <tags>acquiring; finance; payments; ecommerce; e-commerce; credit-card; online-payments</tags>
+    <dependencies>
+        <dependency id="Newtonsoft.Json" version="11.0.2"/>
+        <dependency id="BouncyCastle"    version="1.8.2" />
+    </dependencies>
+  </metadata>
+  <files>
+      <file src="bin\Debug\netstandard2.0\Gateway.dll" target="lib\netstandard2.0"/>
+      <file src="bin\Debug\netstandard2.0\Gateway.xml" target="lib\netstandard2.0"/>
+      <file src="bin\Debug\netstandard2.0\Gateway.pdb" target="lib\netstandard2.0"/>
+      <file src="bin\Debug\netstandard2.0\Util.dll"    target="lib\netstandard2.0"/>
+      <file src="bin\Debug\netstandard2.0\Util.pdb"    target="lib\netstandard2.0"/>
+  </files>
+</package>
