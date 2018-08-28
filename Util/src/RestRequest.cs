@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Clearhaus.Util
 {
@@ -58,6 +59,12 @@ namespace Clearhaus.Util
     /// Help class for building rest requests.
     public class RestRequest : IDisposable
     {
+        private static HttpStatusCode[] acceptedResponseCodes = new HttpStatusCode[]{
+            HttpStatusCode.OK,
+            HttpStatusCode.Created,
+            HttpStatusCode.BadRequest,
+        };
+
         private string url;
         private HttpContent content;
         private HttpClient client;
@@ -109,6 +116,42 @@ namespace Clearhaus.Util
                 throw new ClrhsGatewayException("The remote server responded with InternalServerError");
             }
 
+            if (!Array.Exists(acceptedResponseCodes, code => code == response.StatusCode))
+            {
+                throw new ClrhsException("Invalid response code: " + response.StatusCode.ToString());
+            }
+
+            return response;
+        }
+
+        async public Task<HttpResponseMessage> POSTAsync()
+        {
+            HttpResponseMessage response;
+            try
+            {
+                var t = client.PostAsync(url, content);
+                response = await t;
+            }
+            catch(HttpRequestException e)
+            {
+               throw new ClrhsNetException(e.Message, e);
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new ClrhsAuthException("Invalid API key");
+            }
+
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                throw new ClrhsGatewayException("The remote server responded with InternalServerError");
+            }
+
+            if (!Array.Exists(acceptedResponseCodes, code => code == response.StatusCode))
+            {
+                throw new ClrhsException("Invalid response code: " + response.StatusCode.ToString());
+            }
+
             return response;
         }
 
@@ -142,6 +185,42 @@ namespace Clearhaus.Util
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
                 throw new ClrhsGatewayException("The remote server responded with InternalServerError");
+            }
+
+            if (!Array.Exists(acceptedResponseCodes, code => code == response.StatusCode))
+            {
+                throw new ClrhsException("Invalid response code: " + response.StatusCode.ToString());
+            }
+
+            return response;
+        }
+
+        async public Task<HttpResponseMessage> GETAsync()
+        {
+            HttpResponseMessage response;
+            try
+            {
+                var t = client.GetAsync(url);
+                response = await t;
+            }
+            catch(HttpRequestException e)
+            {
+               throw new ClrhsNetException(e.Message, e);
+            }
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new ClrhsAuthException("Invalid API key");
+            }
+
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                throw new ClrhsGatewayException("The remote server responded with InternalServerError");
+            }
+
+            if (!Array.Exists(acceptedResponseCodes, code => code == response.StatusCode))
+            {
+                throw new ClrhsException("Invalid response code: " + response.StatusCode.ToString());
             }
 
             return response;

@@ -1,7 +1,5 @@
 using System;
-
-// using System.Net conflictions with Authorization class
-using HttpStatusCode = System.Net.HttpStatusCode;
+using System.Threading.Tasks;
 
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Crypto;
@@ -91,7 +89,9 @@ namespace Clearhaus.Gateway
     {
         internal string apiKey;
         internal string signingAPIKey;
-        internal string rsaPrivateKey;
+        internal AsymmetricCipherKeyPair rsaKeyPair;
+
+        internal bool canSign;
 
         /// <summary>
         /// Set the timeout for all following requests against the Gateway.
@@ -106,12 +106,6 @@ namespace Clearhaus.Gateway
         /// URL address of Clearhaus Gateway. By default <c>Constants.GatewayURL</c>.
         /// <seealso cref="Constants.GatewayTestURL"/>.  </summary>
         public string gatewayURL = Constants.GatewayURL;
-
-        // HTTP Status Codes that indicate success with gateway requests.
-        private HttpStatusCode[] httpSuccessCodes = {
-            HttpStatusCode.OK,
-            HttpStatusCode.Created
-        };
 
         /// <summary>
         /// Creates an account object with associated apiKey.
@@ -134,12 +128,34 @@ namespace Clearhaus.Gateway
         /// API key issued to trusted integrator.
         /// </param>
         /// <param name="rsaPrivateKey">
-        /// RSA Signing key associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature.
+        /// RSA Signing key PEM associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature.
         /// </param>
         public void SigningKeys(string apiKey, string rsaPrivateKey)
         {
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new ClrhsException("APIKey must be set");
+            }
+
             this.signingAPIKey = apiKey;
-            this.rsaPrivateKey = rsaPrivateKey;
+
+            var stringreader = new System.IO.StringReader(rsaPrivateKey);
+            var reader = new PemReader(stringreader);
+
+            var obj = reader.ReadObject();
+            if (obj == null)
+            {
+                throw new ClrhsException("Invalid private key. Make sure to remove all spaces.");
+            }
+
+            if (!(obj is AsymmetricCipherKeyPair))
+            {
+                throw new ClrhsException("Key was not what we imagined");
+            }
+
+            rsaKeyPair = (AsymmetricCipherKeyPair)obj;
+
+            canSign = true;
         }
 
         /// <summary>
@@ -166,6 +182,31 @@ namespace Clearhaus.Gateway
             return resp.IsSuccessStatusCode;
         }
 
+        /// <summary>
+        /// Connects to the Gateway attempts to authorize with the apiKey.
+        /// </summary>
+        /// <exception cref="Clearhaus.ClrhsNetException">
+        /// Thrown if connection to the gateway fails.
+        /// </exception>
+        async public Task<bool> ValidAPIKeyAsync()
+        {
+            var builder = newRestBuilder("");
+            var req = builder.Ready();
+            System.Net.Http.HttpResponseMessage resp;
+
+            try
+            {
+                var respTask = req.GETAsync();
+                resp = await respTask;
+            }
+            catch(ClrhsAuthException)
+            {
+                return false;
+            }
+
+            return resp.IsSuccessStatusCode;
+        }
+
         private RestRequestBuilder newRestBuilder(string path, params string[] args)
         {
             var builder = new RestRequestBuilder(new Uri(gatewayURL), apiKey, "");
@@ -178,6 +219,10 @@ namespace Clearhaus.Gateway
 
             return builder;
         }
+
+        /*
+         * REQUEST DISPATCHERS
+         */
 
         private T GETToObject<T>(RestRequest req)
         {
@@ -193,9 +238,24 @@ namespace Clearhaus.Gateway
             return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
         }
 
+        async private Task<T> GETToObjectAsync<T>(RestRequest req)
+        {
+            var responseTask = req.GETAsync();
+            var response = await responseTask;
+
+            req.Dispose();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(response.ReasonPhrase);
+            }
+
+            return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+        }
+
         private T POSTtoObject<T>(RestRequest req)
         {
-            if (!string.IsNullOrWhiteSpace(rsaPrivateKey) && !string.IsNullOrWhiteSpace(signingAPIKey))
+            if (canSign)
             {
                 this.sign(req);
             }
@@ -205,6 +265,51 @@ namespace Clearhaus.Gateway
             req.Dispose();
 
             return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+        }
+
+        async private Task<T> POSTtoObjectAsync<T>(RestRequest req)
+        {
+            if (canSign)
+            {
+                this.sign(req);
+            }
+
+            var httpRequestTask = req.POSTAsync();
+
+            var response = await httpRequestTask;
+
+            req.Dispose();
+
+            var bodyReadTask = response.Content.ReadAsStringAsync();
+
+            var body = await bodyReadTask;
+
+            response.Dispose();
+
+            return JsonConvert.DeserializeObject<T>(body);
+        }
+
+        /*
+         * ACCOUNT INFORMATION IMPLEMENTATION
+         */
+
+        /// <summary>
+        /// Fetches account information about the associated apiKey.
+        /// </summary>
+        /// <remarks>
+        /// Calls the gateways 'account/' endpoint.
+        /// </remarks>
+        /// <returns>
+        /// An AccountInfo object
+        /// </returns>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        public AccountInfo FetchAccountInformation()
+        {
+            var builder = newRestBuilder("account/");
+
+            return GETToObject<AccountInfo>(builder.Ready());
         }
 
         /// <summary>
@@ -218,69 +323,26 @@ namespace Clearhaus.Gateway
         /// </returns>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
-        public AccountInfo FetchAccountInformation()
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        async public Task<AccountInfo> FetchAccountInformationAsync()
         {
             var builder = newRestBuilder("account/");
 
-            return GETToObject<AccountInfo>(builder.Ready());
+            var task = GETToObjectAsync<AccountInfo>(builder.Ready());
+            return await task;
         }
 
         /*
          * AUTHORIZATION IMPLEMENTATION
          */
 
-        /// <summary>
-        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
-        /// </summary>
-        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
-        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
-        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
-        public Authorization Authorize(string amount, string currency, Card cc)
-        {
-            return Authorize(amount, currency, cc, "", null);
-        }
-
-        /// <summary>
-        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
-        /// </summary>
-        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
-        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
-        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
-        /// <param name="PARes">3D-Secure result</param>
-        public Authorization Authorize(string amount, string currency, Card cc, string PARes)
-        {
-            return Authorize(amount, currency, cc, PARes, null);
-        }
-
-        /// <summary>
-        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
-        /// </summary>
-        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
-        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
-        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
-        /// <param name="opts">Optional parameters for authorizations or null</param>
-        public Authorization Authorize(string amount, string currency, Card cc, AuthorizationRequestOptions opts)
-        {
-            return Authorize(amount, currency, cc, "", opts);
-        }
-
-        /// <summary>
-        /// Creates an authorization against the Gateway.
-        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
-        /// </summary>
-        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c></param>
-        /// <param name="currency">Currency in which <c>amount</c> is specified</param>
-        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/></param>
-        /// <param name="PARes">3D-Secure result</param>
-        /// <param name="opts">Optional parameters for authorizations or null</param>
-        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
-        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
-        /* TODO:
-         * - payment-methods
-         */
-        public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
+        // Build an authorization request using a credit card.
+        private RestRequestBuilder buildAuthorizeRequest(
+            string amount,
+            string currency,
+            Card cc,
+            string PARes,
+            AuthorizationRequestOptions opts)
         {
             var builder = newRestBuilder("authorizations/");
 
@@ -307,7 +369,49 @@ namespace Clearhaus.Gateway
                 builder.AddParameters(opts.GetParameters());
             }
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Creates an authorization against the Gateway.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Omittable, see Clearhaus Documentation)</param>
+        /// <param name="PARes">3D-Secure result (omittable)</param>
+        /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /* TODO:
+         * - payment-methods
+         */
+        public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
+        {
+
+            var builder = buildAuthorizeRequest(amount, currency, cc, PARes, opts);
             return POSTtoObject<Authorization>(builder.Ready());
+        }
+
+        /// <summary>
+        /// <see cref="Authorize(string, string, Card, string, AuthorizationRequestOptions)"/>
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Omittable, see Clearhaus Documentation)</param>
+        /// <param name="PARes">3D-Secure result (omittable)</param>
+        /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        async public Task<Authorization> AuthorizeAsync(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
+        {
+
+            var builder = buildAuthorizeRequest(amount, currency, cc, PARes, opts);
+            var POSTTask =  POSTtoObjectAsync<Authorization>(builder.Ready());
+
+            return await POSTTask;
         }
 
         /*
@@ -315,11 +419,16 @@ namespace Clearhaus.Gateway
          */
 
         /// <summary>
-        /// <see cref="Void(string)"/>
+        /// Void (annul) an authorization
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#voids
         /// </summary>
-        public Transaction.Void Void(Authorization auth)
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        public Transaction.Void Void(string authorizationID)
         {
-            return Void(auth.id);
+            var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
+            return POSTtoObject<Transaction.Void>(builder.Ready());
         }
 
         /// <summary>
@@ -328,79 +437,20 @@ namespace Clearhaus.Gateway
         /// </summary>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
-        public Transaction.Void Void(string authorizationID)
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        async public Task<Transaction.Void> VoidAsync(string authorizationID)
         {
             var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
-            return POSTtoObject<Transaction.Void>(builder.Ready());
+            var voidTask = POSTtoObjectAsync<Transaction.Void>(builder.Ready());
+            return await voidTask;
         }
 
         /*
          * CAPTURE IMPLEMENTATION
          */
 
-        /// <summary>
-        /// <see cref="Capture(string, string, string)"/>
-        /// </summary>
-        /// <param name="id">UUID of authorization</param>
-        public Capture Capture(string id)
+        private RestRequestBuilder buildCaptureRequest(string id, string amount, string textOnStatement)
         {
-            return Capture(id, "", "");
-        }
-
-        /// <summary>
-        /// <see cref="Capture(string, string, string)"/>
-        /// </summary>
-        /// <param name="auth">Authorization object on which to perform capture</param>
-        public Capture Capture(Authorization auth)
-        {
-            return Capture(auth.id, "", "");
-        }
-
-        /// <summary>
-        /// <see cref="Capture(string, string, string)"/>
-        /// </summary>
-        /// <param name="id">UUID of authorization</param>
-        /// <param name="amount">Amount to capture</param>
-        public Capture Capture(string id, string amount)
-        {
-            return Capture(id, amount, "");
-        }
-
-        /// <summary>
-        /// <see cref="Capture(string, string, string)"/>
-        /// </summary>
-        /// <param name="auth">Authorization object on which to perform capture</param>
-        /// <param name="amount">Amount to capture</param>
-        public Capture Capture(Authorization auth, string amount)
-        {
-            return Capture(auth.id, amount, "");
-        }
-
-        /// <summary>
-        /// <see cref="Capture(string, string, string)"/>
-        /// </summary>
-        /// <param name="auth">Authorization object on which to perform capture</param>
-        /// <param name="amount">Amount to capture</param>
-        /// <param name="textOnStatement">Text to appear on cardholder bank statement</param>
-        public Capture Capture(Authorization auth, string amount, string textOnStatement)
-        {
-            return Capture(auth.id, amount, textOnStatement);
-        }
-
-        /// <summary>
-        /// Capture reserved money.
-        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
-        /// </summary>
-        /// <param name="id">UUID of authorization</param>
-        /// <param name="amount">Amount to capture</param>
-        /// <param name="textOnStatement">Text to appear on cardholder bank statement</param>
-        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
-        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
-        public Capture Capture(string id, string amount, string textOnStatement)
-        {
-
             var builder = newRestBuilder("authorizations/{0}/captures", id);
 
             if (!string.IsNullOrWhiteSpace(textOnStatement))
@@ -413,73 +463,47 @@ namespace Clearhaus.Gateway
                 builder.AddParameter("amount", amount);
             }
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Capture reserved money.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
+        /// </summary>
+        /// <param name="id">UUID of authorization (Required)</param>
+        /// <param name="amount">Amount to capture (Omittable)</param>
+        /// <param name="textOnStatement">Text to appear on cardholder bank statement (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        public Capture Capture(string id, string amount, string textOnStatement)
+        {
+            var builder = buildCaptureRequest(id, amount, textOnStatement);
             return POSTtoObject<Capture>(builder.Ready());
+        }
+
+        /// <summary>
+        /// Capture reserved money.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#captures
+        /// </summary>
+        /// <param name="id">UUID of authorization (Required)</param>
+        /// <param name="amount">Amount to capture (Omittable)</param>
+        /// <param name="textOnStatement">Text to appear on cardholder bank statement (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        async public Task<Capture> CaptureAsync(string id, string amount, string textOnStatement)
+        {
+            var builder = buildCaptureRequest(id, amount, textOnStatement);
+            var objectTask = POSTtoObjectAsync<Capture>(builder.Ready());
+            return await objectTask;
         }
 
         /*
          * REFUND IMPLEMENTATION
          */
 
-        /// <summary>
-        /// <see cref="Refund(string, string, string)"/>
-        /// </summary>
-        /// <param name="auth">Authorization to refund</param>
-        public Refund Refund(Authorization auth)
-        {
-            return Refund(auth.id, "", "");
-        }
-
-        /// <summary>
-        /// <see cref="Refund(string, string, string)"/>
-        /// </summary>
-        /// <param name="auth">Authorization to refund</param>
-        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
-        public Refund Refund(Authorization auth, string amount)
-        {
-            return Refund(auth.id, amount, "");
-        }
-
-        /// <summary>
-        /// <see cref="Refund(string, string, string)"/>
-        /// </summary>
-        /// <param name="auth">Authorization to refund</param>
-        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
-        /// <param name="textOnStatement">Overrides text on authorization</param>
-        public Refund Refund(Authorization auth, string amount, string textOnStatement)
-        {
-            return Refund(auth.id, amount, textOnStatement);
-        }
-
-        /// <summary>
-        /// <see cref="Refund(string, string, string)"/>
-        /// </summary>
-        /// <param name="id">UUID of authorization</param>
-        public Refund Refund(string id)
-        {
-            return Refund(id, "", "");
-        }
-
-        /// <summary>
-        /// <see cref="Refund(string, string, string)"/>
-        /// </summary>
-        /// <param name="id">UUID of authorization</param>
-        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
-        public Refund Refund(string id, string amount)
-        {
-            return Refund(id, amount, "");
-        }
-
-        /// <summary>
-        /// Refund funds captured on an authorization.
-        /// https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
-        /// </summary>
-        /// <param name="id">UUID of authorization</param>
-        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
-        /// <param name="textOnStatement">Overrides text on authorization</param>
-        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
-        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
-        public Refund Refund(string id, string amount, string textOnStatement)
+        private RestRequestBuilder buildRefundRequest(string id, string amount, string textOnStatement)
         {
             var builder = newRestBuilder( "authorizations/{0}/refunds", id);
 
@@ -493,7 +517,40 @@ namespace Clearhaus.Gateway
                 builder.AddParameter("text_on_statement", textOnStatement);
             }
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Refund funds captured on an authorization.
+        /// https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
+        /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
+        /// <param name="textOnStatement">Overrides text on authorization</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        public Refund Refund(string id, string amount, string textOnStatement)
+        {
+            var builder = buildRefundRequest(id, amount, textOnStatement);
             return POSTtoObject<Refund>(builder.Ready());
+        }
+
+        /// <summary>
+        /// Refund funds captured on an authorization.
+        /// https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refunds
+        /// </summary>
+        /// <param name="id">UUID of authorization</param>
+        /// <param name="amount">Amount to refund or empty string, must be less than captured</param>
+        /// <param name="textOnStatement">Overrides text on authorization</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        async public Task<Refund> RefundAsync(string id, string amount, string textOnStatement)
+        {
+            var builder = buildRefundRequest(id, amount, textOnStatement);
+            var responseTask = POSTtoObjectAsync<Refund>(builder.Ready());
+            return await responseTask;
         }
 
         /*
@@ -504,7 +561,7 @@ namespace Clearhaus.Gateway
          * For API reasons, we still need to tokenize the card before we can
          * perform a credit transaction
          */
-        private TokenizedCard TokenizeCard(Card cc)
+        private RestRequestBuilder buildTokenizeCardRequest(Card cc)
         {
             var builder = newRestBuilder("/cards");
             builder.AddParameter("card[pan]", cc.pan);
@@ -515,30 +572,30 @@ namespace Clearhaus.Gateway
                 builder.AddParameter("card[csc]", cc.csc);
             }
 
+            return builder;
+        }
+
+        private TokenizedCard TokenizeCard(Card cc)
+        {
+            var builder = buildTokenizeCardRequest(cc);
             var tokCard = POSTtoObject<TokenizedCard>(builder.Ready());
 
             return tokCard;
         }
 
-        /// <summary>
-        /// Transfer funds to cartholder account.
-        /// </summary>
-        /// <param name="amount">Amount to transfer</param>
-        /// <param name="currency">Currency to use for transfer</param>
-        /// <param name="cc">Card to transfer to</param>
-        /// <param name="textOnStatement">Statement on cardholders bank account</param>
-        /// <param name="reference">External reference</param>
-        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
-        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
-        public Credit Credit(string amount, string currency, Card cc, string textOnStatement, string reference)
+        async private Task<TokenizedCard> TokenizeCardAsync(Card cc)
         {
-            // The API currently needs us to create a `cards/` resource before
-            // we can do a credit.
-            var tokCard = TokenizeCard(cc);
+            var builder = buildTokenizeCardRequest(cc);
+            var tokCardTask = POSTtoObjectAsync<TokenizedCard>(builder.Ready());
 
-            var builder = newRestBuilder("cards/{0}/credits", tokCard.id);
-            builder.AddParameter("id", tokCard.id);
+            return await tokCardTask;
+        }
+
+        private RestRequestBuilder buildCreditRequest(string amount, string currency, TokenizedCard cc, string textOnStatement, string reference)
+        {
+
+            var builder = newRestBuilder("cards/{0}/credits", cc.id);
+            builder.AddParameter("id", cc.id);
             builder.AddParameter("amount", amount);
             builder.AddParameter("currency", currency);
 
@@ -552,9 +609,54 @@ namespace Clearhaus.Gateway
                 builder.AddParameter("reference", reference);
             }
 
+            return builder;
+        }
+
+        /// <summary>
+        /// Transfer funds to cardholder account.
+        /// </summary>
+        /// <param name="amount">Amount to transfer</param>
+        /// <param name="currency">Currency to use for transfer</param>
+        /// <param name="cc">Card to transfer to</param>
+        /// <param name="textOnStatement">Statement on cardholders bank account</param>
+        /// <param name="reference">External reference</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        public Credit Credit(string amount, string currency, Card cc, string textOnStatement, string reference)
+        {
+            // The API currently needs us to create a `cards/` resource before
+            // we can do a credit.
+            var tokCard = TokenizeCard(cc);
+
+            var builder = buildCreditRequest(amount, currency, tokCard, textOnStatement, reference);
             var credit = POSTtoObject<Credit>(builder.Ready());
 
             return credit;
+        }
+
+        /// <summary>
+        /// Transfer funds to cardholder account.
+        /// </summary>
+        /// <param name="amount">Amount to transfer</param>
+        /// <param name="currency">Currency to use for transfer</param>
+        /// <param name="cc">Card to transfer to</param>
+        /// <param name="textOnStatement">Statement on cardholders bank account</param>
+        /// <param name="reference">External reference</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        async public Task<Credit> CreditAsync(string amount, string currency, Card cc, string textOnStatement, string reference)
+        {
+            // The API currently needs us to create a `cards/` resource before
+            // we can do a credit.
+            var tokCardTask = TokenizeCardAsync(cc);
+            var tokCard = await tokCardTask;
+
+            var builder = buildCreditRequest(amount, currency, tokCard, textOnStatement, reference);
+            var creditTask = POSTtoObjectAsync<Credit>(builder.Ready());
+
+            return await creditTask;
         }
 
         /*
@@ -563,27 +665,12 @@ namespace Clearhaus.Gateway
 
         private void sign(RestRequest request)
         {
-            var stringreader = new System.IO.StringReader(rsaPrivateKey);
-            var reader = new PemReader(stringreader);
-
-            var obj = reader.ReadObject();
-            if (obj == null)
-            {
-                throw new Exception("Invalid private key. Make sure to remove all spaces.");
-            }
-
-            if (!(obj is AsymmetricCipherKeyPair))
-            {
-                throw new Exception("Key was not what we imagined");
-            }
 
             byte[] bodyBytes = request.Body();
             var sha256 = new Sha256Digest();
 
-            AsymmetricCipherKeyPair keypair = (AsymmetricCipherKeyPair)obj;
-
             var signer = new RsaDigestSigner(sha256);
-            signer.Init(true, (ICipherParameters)keypair.Private);
+            signer.Init(true, (ICipherParameters)rsaKeyPair.Private);
             signer.BlockUpdate(bodyBytes, 0, bodyBytes.Length);
 
             byte[] signature = signer.GenerateSignature();

@@ -12,7 +12,7 @@ namespace Clearhaus.Gateway.Test
 
             card.csc = null;
 
-            var auth = account.Authorize("100", "DKK", card);
+            var auth = account.Authorize("100", "DKK", card, null, null);
 
             Assert.True(auth.IsSuccess(), auth.status.message);
         }
@@ -25,7 +25,7 @@ namespace Clearhaus.Gateway.Test
 
             card.csc = "";
 
-            var auth = account.Authorize("100", "DKK", card);
+            var auth = account.Authorize("100", "DKK", card, null, null);
 
             Assert.False(auth.IsSuccess(), "Must sign request");
         }
@@ -42,7 +42,7 @@ namespace Clearhaus.Gateway.Test
                 reference = "afhAsdgg"
             };
 
-            var auth = account.Authorize("100", "DKK", card, options);
+            var auth = account.Authorize("100", "DKK", card, null, options);
 
             Assert.True(auth.IsSuccess(), auth.status.message);
         }
@@ -58,7 +58,7 @@ namespace Clearhaus.Gateway.Test
                 reference = "afhAsdgg"
             };
 
-            var auth = account.Authorize("100", "DKK", card, options);
+            var auth = account.Authorize("100", "DKK", card, null, options);
 
             Assert.True(auth.IsSuccess(), auth.status.message);
         }
@@ -73,7 +73,7 @@ namespace Clearhaus.Gateway.Test
                 recurring = true
             };
 
-            var auth = account.Authorize("100", "DKK", card, options);
+            var auth = account.Authorize("100", "DKK", card, null, options);
 
             Assert.True(auth.IsSuccess(), auth.status.message);
         }
@@ -88,7 +88,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var auth = account.Authorize("lal", "DKK", card);
+            var auth = account.Authorize("lal", "DKK", card, null, null);
 
             Assert.False(auth.IsSuccess(), "Invalid amount should fail");
         }
@@ -99,7 +99,7 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetStagingAccount();
             var card = Util.GetStagingCard();
 
-            var auth = account.Authorize("100", "invalid", card);
+            var auth = account.Authorize("100", "invalid", card, null, null);
 
             Assert.False(auth.IsSuccess(), "Invalid currency should fail");
         }
@@ -114,7 +114,7 @@ namespace Clearhaus.Gateway.Test
                 textOnStatement = "This is a really long text on statement"
             };
 
-            var auth = account.Authorize("100", "DKK", card, options);
+            var auth = account.Authorize("100", "DKK", card, null, options);
 
             Assert.False(auth.IsSuccess(), "Invalid currency should fail");
         }
@@ -126,7 +126,7 @@ namespace Clearhaus.Gateway.Test
             var card = Util.GetStagingCard();
             card.expireYear = "Not a year";
 
-            var auth = account.Authorize("100", "DKK", card);
+            var auth = account.Authorize("100", "DKK", card, null, null);
 
             Assert.False(auth.IsSuccess(), "Invalid currency should fail");
         }
@@ -139,7 +139,7 @@ namespace Clearhaus.Gateway.Test
 
             var pares = "This is not a pares";
 
-            var auth = account.Authorize("100", "DKK", card, pares);
+            var auth = account.Authorize("100", "DKK", card, pares, null);
 
             Assert.False(auth.IsSuccess(), "Invalid pares should fail");
         }
@@ -152,7 +152,7 @@ namespace Clearhaus.Gateway.Test
 
             try
             {
-                var auth = account.Authorize("100", "DKK", card);
+                var auth = account.Authorize("100", "DKK", card, null, null);
             }
             catch(ClrhsAuthException e)
             {
@@ -180,7 +180,7 @@ namespace Clearhaus.Gateway.Test
 
             try
             {
-                var auth = account.Authorize("100", "DKK", card);
+                var auth = account.Authorize("100", "DKK", card, null, null);
             }
             catch(ClrhsNetException e)
             {

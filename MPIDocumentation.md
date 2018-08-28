@@ -39,7 +39,9 @@
 - [MPI](#T-Clearhaus-MPI-MPI 'Clearhaus.MPI.MPI')
   - [#ctor(apikey)](#M-Clearhaus-MPI-MPI-#ctor-System-String- 'Clearhaus.MPI.MPI.#ctor(System.String)')
   - [CheckPARes(pares)](#M-Clearhaus-MPI-MPI-CheckPARes-System-String- 'Clearhaus.MPI.MPI.CheckPARes(System.String)')
+  - [CheckPAResAsync(pares)](#M-Clearhaus-MPI-MPI-CheckPAResAsync-System-String- 'Clearhaus.MPI.MPI.CheckPAResAsync(System.String)')
   - [EnrollCheck(builder)](#M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder- 'Clearhaus.MPI.MPI.EnrollCheck(Clearhaus.MPI.Builder.EnrollCheckBuilder)')
+  - [EnrollCheckAsync(builder)](#M-Clearhaus-MPI-MPI-EnrollCheckAsync-Clearhaus-MPI-Builder-EnrollCheckBuilder- 'Clearhaus.MPI.MPI.EnrollCheckAsync(Clearhaus.MPI.Builder.EnrollCheckBuilder)')
   - [SetEndpoint(endpoint)](#M-Clearhaus-MPI-MPI-SetEndpoint-System-String- 'Clearhaus.MPI.MPI.SetEndpoint(System.String)')
 
 <a name='T-Clearhaus-MPI-Representers-CheckResponse'></a>
@@ -391,8 +393,50 @@ Checks the `PARes`, returning results.
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
 
+<a name='M-Clearhaus-MPI-MPI-CheckPAResAsync-System-String-'></a>
+### CheckPAResAsync(pares) `method`
+
+##### Summary
+
+Checks the `PARes`, returning results.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| pares | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | The `PARes`(possibly) returned from the EnrollCheck call. |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+
 <a name='M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder-'></a>
 ### EnrollCheck(builder) `method`
+
+##### Summary
+
+Query the MPI service, returning `PARes`and `ACSUrl`to allow continuing the 3DS flow.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| builder | [Clearhaus.MPI.Builder.EnrollCheckBuilder](#T-Clearhaus-MPI-Builder-EnrollCheckBuilder 'Clearhaus.MPI.Builder.EnrollCheckBuilder') | The information associated with the 3D-Secure flow |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+
+<a name='M-Clearhaus-MPI-MPI-EnrollCheckAsync-Clearhaus-MPI-Builder-EnrollCheckBuilder-'></a>
+### EnrollCheckAsync(builder) `method`
 
 ##### Summary
 

@@ -31,7 +31,7 @@ namespace Clearhaus.Gateway.Test
         {
             var card = Util.GetStagingCard();
 
-            var auth = account.Authorize("100", "DKK", card);
+            var auth = account.Authorize("100", "DKK", card, null, null);
 
             Assert.NotNull(auth);
             Assert.True(auth.IsSuccess());
@@ -42,9 +42,9 @@ namespace Clearhaus.Gateway.Test
         {
             var card = Util.GetStagingCard();
 
-            var auth = account.Authorize("100", "DKK", card);
+            var auth = account.Authorize("100", "DKK", card, null, null);
 
-            var v = account.Void(auth);
+            var v = account.Void(auth.id);
 
             Assert.True(v.IsSuccess());
         }
@@ -54,9 +54,9 @@ namespace Clearhaus.Gateway.Test
         {
             var card = Util.GetStagingCard();
 
-            var auth = account.Authorize("100", "DKK", card);
+            var auth = account.Authorize("100", "DKK", card, null, null);
 
-            var capture = account.Capture(auth, "100");
+            var capture = account.Capture(auth.id, "100", null);
 
             Assert.True(capture.IsSuccess());
         }
@@ -66,8 +66,8 @@ namespace Clearhaus.Gateway.Test
         {
             var card = Util.GetStagingCard();
 
-            var auth = account.Authorize("100", "DKK", card);
-            account.Capture(auth, "100");
+            var auth = account.Authorize("100", "DKK", card, null, null);
+            account.Capture(auth.id, "100", null);
 
             var refund = account.Refund(auth.id, "100", "");
 

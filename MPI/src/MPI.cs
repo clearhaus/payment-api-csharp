@@ -1,5 +1,5 @@
 using System;
-using System.Net;
+using System.Threading.Tasks;
 
 using Clearhaus.Util;
 using Clearhaus.MPI.Builder;
@@ -109,11 +109,33 @@ namespace Clearhaus.MPI
             var rr = rrb.Ready();
 
             var response = rr.POST();
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                //Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-                throw new Exception(String.Format("Bad statuscode: {0}", response.StatusCode.ToString()));
-            }
+
+            var body = response.Content.ReadAsStringAsync().Result;
+            var status = JsonConvert.DeserializeObject<EnrollmentStatus>(body);
+
+            return status;
+        }
+
+        /// <summary>
+        /// Query the MPI service, returning <c>PARes</c> and <c>ACSUrl</c> to allow continuing the 3DS flow.
+        /// </summary>
+        /// <param name="builder">
+        /// The information associated with the 3D-Secure flow
+        /// </param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
+        async public Task<EnrollmentStatus> EnrollCheckAsync(EnrollCheckBuilder builder)
+        {
+            var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
+            rrb.SetPath("/enrolled");
+
+            rrb.AddParameters(builder.GetArgs());
+
+            var rr = rrb.Ready();
+
+            var responseTask = rr.POSTAsync();
+            var response = await responseTask;
 
             var body = response.Content.ReadAsStringAsync().Result;
             var status = JsonConvert.DeserializeObject<EnrollmentStatus>(body);
@@ -139,11 +161,32 @@ namespace Clearhaus.MPI
             var rr = rrb.Ready();
 
             var response = rr.POST();
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new Exception(String.Format("Bad statuscode: {0}", response.StatusCode.ToString()));
-            }
 
+            var body = response.Content.ReadAsStringAsync().Result;
+            var parsedResponse = JsonConvert.DeserializeObject<CheckResponse>(body);
+
+            return parsedResponse;
+        }
+
+        /// <summary>
+        /// Checks the <c>PARes</c>, returning results.
+        /// </summary>
+        /// <param name="pares">
+        /// The <c>PARes</c> (possibly) returned from the EnrollCheck call.
+        /// </param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
+        async public Task<CheckResponse> CheckPAResAsync(string pares)
+        {
+            var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
+            rrb.SetPath("/check");
+            rrb.AddParameter("pares", pares);
+
+            var rr = rrb.Ready();
+
+            var responseTask = rr.POSTAsync();
+            var response = await responseTask;
             var body = response.Content.ReadAsStringAsync().Result;
             var parsedResponse = JsonConvert.DeserializeObject<CheckResponse>(body);
 
