@@ -98,7 +98,8 @@ namespace Clearhaus.MPI
         /// </param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public EnrollmentStatus EnrollCheck(EnrollCheckBuilder builder)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
@@ -124,7 +125,8 @@ namespace Clearhaus.MPI
         /// </param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<EnrollmentStatus> EnrollCheckAsync(EnrollCheckBuilder builder)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
@@ -151,7 +153,8 @@ namespace Clearhaus.MPI
         /// </param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public CheckResponse CheckPARes(string pares)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
@@ -176,7 +179,8 @@ namespace Clearhaus.MPI
         /// </param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
-        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server rror</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<CheckResponse> CheckPAResAsync(string pares)
         {
             var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");

@@ -117,6 +117,23 @@ namespace Clearhaus.Gateway
         {
             this.apiKey = apiKey;
             this.Timeout = new TimeSpan(0, 0, 5);
+        /// <summary>
+        /// Creates an account object with associated apiKey, specify alternate gateway address.
+        /// </summary>
+        /// <param name="apiKey">
+        /// The API Key associated with the merchant account on which the transactions are to be performed.
+        /// </param>
+        /// <param name="gatewayURL">
+        /// URL to use as remote Gateway address. Default <c>Constants.GatewayURL</c>.
+        /// <seealso cref="Constants.GatewayTestURL"/>.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">If gatewayUrl is null</exception>
+        /// <exception cref="System.UriFormatException">If gatewayUrl is invalid URI</exception>
+        public Account(string apiKey, string gatewayURL)
+        {
+            this.apiKey = apiKey;
+            this.Timeout = new TimeSpan(0, 0, 5);
+            this.gatewayURL = new Uri(gatewayURL);
         }
 
         /// <summary>
@@ -130,6 +147,41 @@ namespace Clearhaus.Gateway
         /// <param name="rsaPrivateKey">
         /// RSA Signing key PEM associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature.
         /// </param>
+        /// <example>
+        /// <code lang="C#">
+        /// // This apikey is associated with the account. In general, this
+        /// // represents a merchants API key.
+        /// var apiKey        = "[My secret UUID]";
+        ///
+        /// // This APIKey would likely be your key, that is, the key
+        /// // belonging to a technical integrator.
+        /// var signingApiKey = "[My secret UUID]";
+        ///
+        /// // This is the private key corresponding to a public key you have
+        /// // exchanged with Clearhaus.
+        /// var rsaPrivateKey = @"-----BEGIN RSA PRIVATE KEY-----
+        ///     MIICWwIBAAKBgQC9KAaGN0y4vHOuXFZLE+GHIgd6Ya8IgL55cWxXzWO8T/AykXyi
+        ///     kayr4vy3aTpcJ8JEsZcDWnOkDpyBbaULLjfH7WtTm1Vyt4GrHatv6XtSB921rAIB
+        ///     BxKAZUU0BDLdFlztjFgu8qRow2GPxEjltDgiEINwYzhYBbST9EyrowvgcwIBAwKB
+        ///     gH4arwQk3dB9onQ9jty3669sBPxBH1sAfvug8uUzl9Lf9XcLqGxhHcfsqHpGJuga
+        ///     gYMhD1eRom1fEwDzw1zJeoQjhNuwMmVEajbCrmboT1+wXOZYZdf6UqwgzUJOFCES
+        ///     M8cIeStzdnRGLdW56b4q4edohA2Gtb3DV3RslA9xvwCbAkEA3rTybL5hChFAMuiK
+        ///     zo5SeSDcHI4MLX1q4TAJ2Dyb4YTE4N8ok2YA8fX+oZOwEDYiM8HfZtVbKKByqOud
+        ///     4M7/jQJBANlvF6ZLecbRGMa9Sr518AYxgArbMOIZE1LhRrbYD5mKfh7DRTIMuWgm
+        ///     0IvWmGOvJL/7fLJSYDgQ8qiC9peeX/8CQQCUeKGd1ECxYNV3RbHfCYxQwJK9tAge
+        ///     U5yWIAaQKGfrrdiV6hsM7qtL+VRrt8q1eWwigT+Z45IbFaHF8mlAif+zAkEAkPS6
+        ///     btz72eC7LyjcfvlKrsuqsed17BC3jJYvJJAKZlxUFIIuIV3Q8BngXTm67R9t1VJT
+        ///     IYxAJWChxaykZRQ//wJAFM6sXZYIl9SKAcY6iRFElmL1nw3NTFWKU/2/y5fsOn9U
+        ///     drtnrCH+i7Iedp+K0qUASitBWAATnHEJ2Q0Pc8LEJQ==
+        ///     -----END RSA PRIVATE KEY-----";
+        /// var account = new Account(apiKey);
+        ///
+        /// account.SigningKeys(signingApiKey, rsaPrivateKey);
+        ///
+        /// // If the key is trusted, API requests against the Clearhaus
+        /// // gateway using `account` will now have a signed body.
+        /// </code>
+        /// </example>
         public void SigningKeys(string apiKey, string rsaPrivateKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
@@ -305,6 +357,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public AccountInfo FetchAccountInformation()
         {
             var builder = newRestBuilder("account/");
@@ -324,6 +377,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<AccountInfo> FetchAccountInformationAsync()
         {
             var builder = newRestBuilder("account/");
@@ -384,6 +438,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         /* TODO:
          * - payment-methods
          */
@@ -405,6 +460,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Authorization> AuthorizeAsync(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
         {
 
@@ -425,6 +481,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Transaction.Void Void(string authorizationID)
         {
             var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
@@ -438,6 +495,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Transaction.Void> VoidAsync(string authorizationID)
         {
             var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
@@ -476,6 +534,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Capture Capture(string id, string amount, string textOnStatement)
         {
             var builder = buildCaptureRequest(id, amount, textOnStatement);
@@ -492,6 +551,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Capture> CaptureAsync(string id, string amount, string textOnStatement)
         {
             var builder = buildCaptureRequest(id, amount, textOnStatement);
@@ -530,6 +590,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Refund Refund(string id, string amount, string textOnStatement)
         {
             var builder = buildRefundRequest(id, amount, textOnStatement);
@@ -546,6 +607,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Refund> RefundAsync(string id, string amount, string textOnStatement)
         {
             var builder = buildRefundRequest(id, amount, textOnStatement);
@@ -623,6 +685,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Credit Credit(string amount, string currency, Card cc, string textOnStatement, string reference)
         {
             // The API currently needs us to create a `cards/` resource before
@@ -646,6 +709,7 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Credit> CreditAsync(string amount, string currency, Card cc, string textOnStatement, string reference)
         {
             // The API currently needs us to create a `cards/` resource before
