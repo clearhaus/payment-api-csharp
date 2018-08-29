@@ -8,8 +8,7 @@ namespace Clearhaus.Gateway.Test
 
         public Basic()
         {
-            account = new Gateway.Account(Util.GetValidAPIKey());
-            account.gatewayURL = Constants.GatewayTestURL;
+            account = new Gateway.Account(Util.GetValidAPIKey(), Constants.GatewayTestURL);
         }
 
         [Fact]

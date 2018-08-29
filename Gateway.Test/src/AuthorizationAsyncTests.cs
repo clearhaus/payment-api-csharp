@@ -67,8 +67,8 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void GracefulNetFailure()
         {
-            var account = Util.GetStagingAccount();
-            account.gatewayURL = "https://nonexistant.clearhaus.com";
+            //var account = Util.GetStagingAccount();
+            var account = new Account("Invalid apikey", "https://nonexistant.clearhaus.com");
             var card = Util.GetStagingCard();
 
             try

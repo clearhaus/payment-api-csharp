@@ -174,8 +174,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void GracefulNetFailure()
         {
-            var account = Util.GetStagingAccount();
-            account.gatewayURL = "https://nonexistant.clearhaus.com";
+            var account = new Account("Invalid apikey", "https://nonexistant.clearhaus.com");
             var card = Util.GetStagingCard();
 
             try
@@ -194,8 +193,7 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void GracefulNetAuthFailure()
         {
-            var account = Util.GetStagingAccount();
-            account.gatewayURL = "https://nonexistant.clearhaus.com";
+            var account = new Account("Invalid apikey", "https://nonexistant.clearhaus.com");
 
             try
             {
