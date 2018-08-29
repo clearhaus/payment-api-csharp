@@ -46,3 +46,4 @@ Thumbs.db
 
 # File used to export test variables
 export.sh
+*.nupkg
