@@ -35,16 +35,14 @@ namespace Clearhaus.Gateway.Test
 
         public static Gateway.Account GetStagingAccount()
         {
-            var account = new Gateway.Account(Util.GetValidAPIKey());
-            account.gatewayURL = Constants.GatewayTestURL;
+            var account = new Gateway.Account(Util.GetValidAPIKey(), Constants.GatewayTestURL);
 
             return account;
         }
 
         public static Gateway.Account GetSigningStagingAccount()
         {
-            var account = new Gateway.Account(Util.GetValidAPIKey());
-            account.gatewayURL = Constants.GatewayTestURL;
+            var account = new Gateway.Account(Util.GetValidAPIKey(), Constants.GatewayTestURL);
             account.SigningKeys(GetValidAPIKey(), GetPrivateKey());
 
             return account;
