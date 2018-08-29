@@ -264,7 +264,7 @@ namespace Clearhaus.Gateway
 
         private RestRequestBuilder newRestBuilder(string path, params string[] args)
         {
-            var builder = new RestRequestBuilder(new Uri(gatewayURL), apiKey, "");
+            var builder = new RestRequestBuilder(gatewayURL, apiKey, "");
             builder.SetPath(path, args);
 
             if (Timeout != null)

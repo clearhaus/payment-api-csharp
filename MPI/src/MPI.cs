@@ -115,7 +115,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public EnrollmentStatus EnrollCheck(EnrollCheckBuilder builder)
         {
-            var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
+            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
             rrb.SetPath("/enrolled");
 
             rrb.AddParameters(builder.GetArgs());
@@ -142,7 +142,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<EnrollmentStatus> EnrollCheckAsync(EnrollCheckBuilder builder)
         {
-            var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
+            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
             rrb.SetPath("/enrolled");
 
             rrb.AddParameters(builder.GetArgs());
@@ -170,7 +170,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public CheckResponse CheckPARes(string pares)
         {
-            var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
+            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
             rrb.SetPath("/check");
             rrb.AddParameter("pares", pares);
 
@@ -196,7 +196,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<CheckResponse> CheckPAResAsync(string pares)
         {
-            var rrb = new RestRequestBuilder(this.endpoint, this.apikey, "");
+            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
             rrb.SetPath("/check");
             rrb.AddParameter("pares", pares);
 
