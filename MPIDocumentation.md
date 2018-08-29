@@ -38,11 +38,12 @@
   - [pareq](#F-Clearhaus-MPI-Representers-EnrollmentStatus-pareq 'Clearhaus.MPI.Representers.EnrollmentStatus.pareq')
 - [MPI](#T-Clearhaus-MPI-MPI 'Clearhaus.MPI.MPI')
   - [#ctor(apikey)](#M-Clearhaus-MPI-MPI-#ctor-System-String- 'Clearhaus.MPI.MPI.#ctor(System.String)')
+  - [#ctor(apikey,mpiUrl)](#M-Clearhaus-MPI-MPI-#ctor-System-String,System-String- 'Clearhaus.MPI.MPI.#ctor(System.String,System.String)')
   - [CheckPARes(pares)](#M-Clearhaus-MPI-MPI-CheckPARes-System-String- 'Clearhaus.MPI.MPI.CheckPARes(System.String)')
   - [CheckPAResAsync(pares)](#M-Clearhaus-MPI-MPI-CheckPAResAsync-System-String- 'Clearhaus.MPI.MPI.CheckPAResAsync(System.String)')
   - [EnrollCheck(builder)](#M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder- 'Clearhaus.MPI.MPI.EnrollCheck(Clearhaus.MPI.Builder.EnrollCheckBuilder)')
   - [EnrollCheckAsync(builder)](#M-Clearhaus-MPI-MPI-EnrollCheckAsync-Clearhaus-MPI-Builder-EnrollCheckBuilder- 'Clearhaus.MPI.MPI.EnrollCheckAsync(Clearhaus.MPI.Builder.EnrollCheckBuilder)')
-  - [SetEndpoint(endpoint)](#M-Clearhaus-MPI-MPI-SetEndpoint-System-String- 'Clearhaus.MPI.MPI.SetEndpoint(System.String)')
+  - [SetEndpoint(mpiUrl)](#M-Clearhaus-MPI-MPI-SetEndpoint-System-String- 'Clearhaus.MPI.MPI.SetEndpoint(System.String)')
 
 <a name='T-Clearhaus-MPI-Representers-CheckResponse'></a>
 ## CheckResponse `type`
@@ -372,6 +373,27 @@ Temporary documentation
 | ---- | ---- | ----------- |
 | apikey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID representing your 3dsecure.io account |
 
+<a name='M-Clearhaus-MPI-MPI-#ctor-System-String,System-String-'></a>
+### #ctor(apikey,mpiUrl) `constructor`
+
+##### Summary
+
+Temporary documentation
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| apikey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID representing your 3dsecure.io account |
+| mpiUrl | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | URL to use as API mpiUrl |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [System.ArgumentNullException](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.ArgumentNullException 'System.ArgumentNullException') | If mpiUrl is null |
+| [System.UriFormatException](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.UriFormatException 'System.UriFormatException') | If mpiUrl is invalid URI |
+
 <a name='M-Clearhaus-MPI-MPI-CheckPARes-System-String-'></a>
 ### CheckPARes(pares) `method`
 
@@ -391,7 +413,8 @@ Checks the `PARes`, returning results.
 | ---- | ----------- |
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
-| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-MPI-MPI-CheckPAResAsync-System-String-'></a>
 ### CheckPAResAsync(pares) `method`
@@ -412,7 +435,8 @@ Checks the `PARes`, returning results.
 | ---- | ----------- |
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
-| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder-'></a>
 ### EnrollCheck(builder) `method`
@@ -433,7 +457,8 @@ Query the MPI service, returning `PARes`and `ACSUrl`to allow continuing the 3DS 
 | ---- | ----------- |
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
-| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-MPI-MPI-EnrollCheckAsync-Clearhaus-MPI-Builder-EnrollCheckBuilder-'></a>
 ### EnrollCheckAsync(builder) `method`
@@ -454,14 +479,15 @@ Query the MPI service, returning `PARes`and `ACSUrl`to allow continuing the 3DS 
 | ---- | ----------- |
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
-| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server rror |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-MPI-MPI-SetEndpoint-System-String-'></a>
-### SetEndpoint(endpoint) `method`
+### SetEndpoint(mpiUrl) `method`
 
 ##### Summary
 
-Override the default 3DSecure endpoint.
+Override the default 3DSecure mpiUrl.
 
  [MPIURL](#F-Clearhaus-MPI-Constants-MPIURL 'Clearhaus.MPI.Constants.MPIURL')
 
@@ -469,4 +495,4 @@ Override the default 3DSecure endpoint.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| endpoint | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | URL to use as endpoint |
+| mpiUrl | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | URL to use as mpiUrl |

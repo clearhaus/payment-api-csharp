@@ -5,6 +5,7 @@
 
 - [Account](#T-Clearhaus-Gateway-Account 'Clearhaus.Gateway.Account')
   - [#ctor(apiKey)](#M-Clearhaus-Gateway-Account-#ctor-System-String- 'Clearhaus.Gateway.Account.#ctor(System.String)')
+  - [#ctor(apiKey,gatewayURL)](#M-Clearhaus-Gateway-Account-#ctor-System-String,System-String- 'Clearhaus.Gateway.Account.#ctor(System.String,System.String)')
   - [gatewayURL](#F-Clearhaus-Gateway-Account-gatewayURL 'Clearhaus.Gateway.Account.gatewayURL')
   - [Timeout](#F-Clearhaus-Gateway-Account-Timeout 'Clearhaus.Gateway.Account.Timeout')
   - [Authorize(amount,currency,cc,PARes,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.AuthorizationRequestOptions)')
@@ -161,6 +162,28 @@ Creates an account object with associated apiKey.
 | ---- | ---- | ----------- |
 | apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | The API Key associated with the merchant account on which the transactions are to be performed. |
 
+<a name='M-Clearhaus-Gateway-Account-#ctor-System-String,System-String-'></a>
+### #ctor(apiKey,gatewayURL) `constructor`
+
+##### Summary
+
+Creates an account object with associated apiKey, specify alternate gateway address.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | The API Key associated with the merchant account on which the transactions are to be performed. |
+| gatewayURL | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | URL to use as remote Gateway address. Default `Constants.GatewayURL`.
+. |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [System.ArgumentNullException](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.ArgumentNullException 'System.ArgumentNullException') | If gatewayUrl is null |
+| [System.UriFormatException](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.UriFormatException 'System.UriFormatException') | If gatewayUrl is invalid URI |
+
 <a name='F-Clearhaus-Gateway-Account-gatewayURL'></a>
 ### gatewayURL `constants`
 
@@ -206,6 +229,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-AuthorizationRequestOptions-'></a>
 ### AuthorizeAsync(amount,currency,cc,PARes,opts) `method`
@@ -231,6 +255,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String-'></a>
 ### Capture(id,amount,textOnStatement) `method`
@@ -255,6 +280,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#ca
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-CaptureAsync-System-String,System-String,System-String-'></a>
 ### CaptureAsync(id,amount,textOnStatement) `method`
@@ -279,6 +305,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#ca
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-Credit-System-String,System-String,Clearhaus-Gateway-Card,System-String,System-String-'></a>
 ### Credit(amount,currency,cc,textOnStatement,reference) `method`
@@ -304,6 +331,7 @@ Transfer funds to cardholder account.
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-CreditAsync-System-String,System-String,Clearhaus-Gateway-Card,System-String,System-String-'></a>
 ### CreditAsync(amount,currency,cc,textOnStatement,reference) `method`
@@ -329,6 +357,7 @@ Transfer funds to cardholder account.
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-FetchAccountInformation'></a>
 ### FetchAccountInformation() `method`
@@ -352,6 +381,7 @@ This method has no parameters.
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 ##### Remarks
 
@@ -379,6 +409,7 @@ This method has no parameters.
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 ##### Remarks
 
@@ -407,6 +438,7 @@ https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refund
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-RefundAsync-System-String,System-String,System-String-'></a>
 ### RefundAsync(id,amount,textOnStatement) `method`
@@ -431,6 +463,7 @@ https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refund
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-SigningKeys-System-String,System-String-'></a>
 ### SigningKeys(apiKey,rsaPrivateKey) `method`
@@ -438,15 +471,48 @@ https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#refund
 ##### Summary
 
 Sets the Clearhaus API key and associated rsaPrivateKey to be
-used for signing. When these parameters are set, all requests are
-signed.
+ used for signing. When these parameters are set, all requests are
+ signed.
 
 ##### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | API key issued to trusted integrator. |
-| rsaPrivateKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | RSA Signing key associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature. |
+| rsaPrivateKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | RSA Signing key PEM associated with apiKey. See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#rsa-signature. |
+
+##### Example
+
+```C#
+ // This apikey is associated with the account. In general, this
+ // represents a merchants API key.
+ var apiKey        = "[My secret UUID]";
+ // This APIKey would likely be your key, that is, the key
+ // belonging to a technical integrator.
+ var signingApiKey = "[My secret UUID]";
+ // This is the private key corresponding to a public key you have
+ // exchanged with Clearhaus.
+ var rsaPrivateKey = @"-----BEGIN RSA PRIVATE KEY-----
+     MIICWwIBAAKBgQC9KAaGN0y4vHOuXFZLE+GHIgd6Ya8IgL55cWxXzWO8T/AykXyi
+     kayr4vy3aTpcJ8JEsZcDWnOkDpyBbaULLjfH7WtTm1Vyt4GrHatv6XtSB921rAIB
+     BxKAZUU0BDLdFlztjFgu8qRow2GPxEjltDgiEINwYzhYBbST9EyrowvgcwIBAwKB
+     gH4arwQk3dB9onQ9jty3669sBPxBH1sAfvug8uUzl9Lf9XcLqGxhHcfsqHpGJuga
+     gYMhD1eRom1fEwDzw1zJeoQjhNuwMmVEajbCrmboT1+wXOZYZdf6UqwgzUJOFCES
+     M8cIeStzdnRGLdW56b4q4edohA2Gtb3DV3RslA9xvwCbAkEA3rTybL5hChFAMuiK
+     zo5SeSDcHI4MLX1q4TAJ2Dyb4YTE4N8ok2YA8fX+oZOwEDYiM8HfZtVbKKByqOud
+     4M7/jQJBANlvF6ZLecbRGMa9Sr518AYxgArbMOIZE1LhRrbYD5mKfh7DRTIMuWgm
+     0IvWmGOvJL/7fLJSYDgQ8qiC9peeX/8CQQCUeKGd1ECxYNV3RbHfCYxQwJK9tAge
+     U5yWIAaQKGfrrdiV6hsM7qtL+VRrt8q1eWwigT+Z45IbFaHF8mlAif+zAkEAkPS6
+     btz72eC7LyjcfvlKrsuqsed17BC3jJYvJJAKZlxUFIIuIV3Q8BngXTm67R9t1VJT
+     IYxAJWChxaykZRQ//wJAFM6sXZYIl9SKAcY6iRFElmL1nw3NTFWKU/2/y5fsOn9U
+     drtnrCH+i7Iedp+K0qUASitBWAATnHEJ2Q0Pc8LEJQ==
+     -----END RSA PRIVATE KEY-----";
+ var account = new Account(apiKey);
+ account.SigningKeys(signingApiKey, rsaPrivateKey);
+ // If the key is trusted, API requests against the Clearhaus
+ // gateway using `account` will now have a signed body.
+  
+```
 
 <a name='M-Clearhaus-Gateway-Account-ValidAPIKey'></a>
 ### ValidAPIKey() `method`
@@ -501,6 +567,7 @@ This method has no parameters.
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='M-Clearhaus-Gateway-Account-VoidAsync-System-String-'></a>
 ### VoidAsync() `method`
@@ -521,6 +588,7 @@ This method has no parameters.
 | [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
 <a name='T-Clearhaus-Gateway-AccountInfo'></a>
 ## AccountInfo `type`
