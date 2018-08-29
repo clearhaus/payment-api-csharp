@@ -65,7 +65,7 @@ namespace Clearhaus.MPI
     public class MPI
     {
         private string apikey;
-        private Uri endpoint;
+        private Uri mpiUrl;
 
         /// <summary>
         /// Temporary documentation
@@ -74,20 +74,33 @@ namespace Clearhaus.MPI
         public MPI(string apikey)
         {
             this.apikey = apikey;
-            this.endpoint = new Uri(Constants.MPIURL);
+            this.mpiUrl = new Uri(Constants.MPIURL);
         }
 
         /// <summary>
-        /// Override the default 3DSecure endpoint.
+        /// Temporary documentation
+        /// </summary>
+        /// <param name="apikey">UUID representing your 3dsecure.io account</param>
+        /// <param name="mpiUrl">URL to use as API mpiUrl</param>
+        /// <exception cref="System.ArgumentNullException">If mpiUrl is null</exception>
+        /// <exception cref="System.UriFormatException">If mpiUrl is invalid URI</exception>
+        public MPI(string apikey, string mpiUrl)
+        {
+            this.apikey = apikey;
+            this.mpiUrl = new Uri(mpiUrl);
+        }
+
+        /// <summary>
+        /// Override the default 3DSecure mpiUrl.
         ///
         /// <see cref="Constants.MPIURL"/>
         /// </summary>
-        /// <param name="endpoint">
-        /// URL to use as endpoint
+        /// <param name="mpiUrl">
+        /// URL to use as mpiUrl
         /// </param>
-        public void SetEndpoint(string endpoint)
+        public void SetEndpoint(string mpiUrl)
         {
-            this.endpoint = new Uri(endpoint);
+            this.mpiUrl = new Uri(mpiUrl);
         }
 
         /// <summary>

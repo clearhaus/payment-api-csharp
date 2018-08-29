@@ -105,7 +105,7 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// URL address of Clearhaus Gateway. By default <c>Constants.GatewayURL</c>.
         /// <seealso cref="Constants.GatewayTestURL"/>.  </summary>
-        public string gatewayURL = Constants.GatewayURL;
+        private Uri gatewayURL;
 
         /// <summary>
         /// Creates an account object with associated apiKey.
@@ -117,6 +117,9 @@ namespace Clearhaus.Gateway
         {
             this.apiKey = apiKey;
             this.Timeout = new TimeSpan(0, 0, 5);
+            this.gatewayURL = new Uri(Constants.GatewayURL);
+        }
+
         /// <summary>
         /// Creates an account object with associated apiKey, specify alternate gateway address.
         /// </summary>
