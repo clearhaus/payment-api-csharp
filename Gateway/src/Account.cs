@@ -221,20 +221,27 @@ namespace Clearhaus.Gateway
         /// </exception>
         public bool ValidAPIKey()
         {
-            var builder = newRestBuilder("");
-            var req = builder.Ready();
-            System.Net.Http.HttpResponseMessage resp;
-
-            try
+            using(var rest = buildRestRequest(""))
             {
-                resp = req.GET();
-            }
-            catch(ClrhsAuthException)
-            {
-                return false;
-            }
+                System.Net.Http.HttpResponseMessage resp;
 
-            return resp.IsSuccessStatusCode;
+                try
+                {
+                    resp = rest.GET();
+                }
+                catch(ClrhsAuthException)
+                {
+                    return false;
+                }
+
+                // Should always be success, if we get this far.
+                if (!resp.IsSuccessStatusCode)
+                {
+                    throw new ClrhsGatewayException("Invalid response from gateway: " + resp.StatusCode);
+                }
+
+                return true;
+            }
         }
 
         /// <summary>
@@ -245,45 +252,49 @@ namespace Clearhaus.Gateway
         /// </exception>
         async public Task<bool> ValidAPIKeyAsync()
         {
-            var builder = newRestBuilder("");
-            var req = builder.Ready();
-            System.Net.Http.HttpResponseMessage resp;
-
-            try
+            using(var restRequest = buildRestRequest(""))
             {
-                var respTask = req.GETAsync();
-                resp = await respTask;
-            }
-            catch(ClrhsAuthException)
-            {
-                return false;
-            }
+                System.Net.Http.HttpResponseMessage resp;
 
-            return resp.IsSuccessStatusCode;
+                try
+                {
+                    resp = await restRequest.GETAsync();
+                }
+                catch(ClrhsAuthException)
+                {
+                    return false;
+                }
+
+                // Should always be success, if we get this far.
+                if (!resp.IsSuccessStatusCode)
+                {
+                    throw new ClrhsGatewayException("Invalid response from gateway: " + resp.StatusCode);
+                }
+
+                return true;
+            }
         }
 
-        private RestRequestBuilder newRestBuilder(string path, params string[] args)
+        private RestRequest buildRestRequest(string path, params string[] args)
         {
-            var builder = new RestRequestBuilder(gatewayURL, apiKey, "");
-            builder.SetPath(path, args);
+            var restRequest = new RestRequest(gatewayURL, apiKey, "");
+            restRequest.SetPath(path, args);
 
             if (Timeout != null)
             {
-                builder.client.Timeout = Timeout;
+                restRequest.client.Timeout = Timeout;
             }
 
-            return builder;
+            return restRequest;
         }
 
         /*
          * REQUEST DISPATCHERS
          */
 
-        private T GETToObject<T>(RestRequest req)
+        private T GETToObject<T>(RestRequest reqBuilder)
         {
-            var response = req.GET();
-
-            req.Dispose();
+            var response = reqBuilder.GET();
 
             if (!response.IsSuccessStatusCode)
             {
@@ -295,17 +306,14 @@ namespace Clearhaus.Gateway
 
         async private Task<T> GETToObjectAsync<T>(RestRequest req)
         {
-            var responseTask = req.GETAsync();
-            var response = await responseTask;
-
-            req.Dispose();
+            var response = await req.GETAsync();
 
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception(response.ReasonPhrase);
             }
 
-            return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
         }
 
         private T POSTtoObject<T>(RestRequest req)
@@ -317,8 +325,6 @@ namespace Clearhaus.Gateway
 
             var response = req.POST();
 
-            req.Dispose();
-
             return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
         }
 
@@ -329,17 +335,8 @@ namespace Clearhaus.Gateway
                 this.sign(req);
             }
 
-            var httpRequestTask = req.POSTAsync();
-
-            var response = await httpRequestTask;
-
-            req.Dispose();
-
-            var bodyReadTask = response.Content.ReadAsStringAsync();
-
-            var body = await bodyReadTask;
-
-            response.Dispose();
+            var response = await req.POSTAsync();
+            var body = await response.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<T>(body);
         }
@@ -363,9 +360,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public AccountInfo FetchAccountInformation()
         {
-            var builder = newRestBuilder("account/");
-
-            return GETToObject<AccountInfo>(builder.Ready());
+            using(var restRequest = buildRestRequest("account/"))
+            {
+                return GETToObject<AccountInfo>(restRequest);
+            }
         }
 
         /// <summary>
@@ -383,10 +381,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<AccountInfo> FetchAccountInformationAsync()
         {
-            var builder = newRestBuilder("account/");
-
-            var task = GETToObjectAsync<AccountInfo>(builder.Ready());
-            return await task;
+            using(var restRequest = buildRestRequest("account/"))
+            {
+                return await GETToObjectAsync<AccountInfo>(restRequest);
+            }
         }
 
         /*
@@ -394,39 +392,39 @@ namespace Clearhaus.Gateway
          */
 
         // Build an authorization request using a credit card.
-        private RestRequestBuilder buildAuthorizeRequest(
+        private RestRequest buildAuthorizeRequest(
             string amount,
             string currency,
             Card cc,
             string PARes,
             AuthorizationRequestOptions opts)
         {
-            var builder = newRestBuilder("authorizations/");
+            var restRequest = buildRestRequest("authorizations/");
 
-            builder.AddParameter("amount", amount);
-            builder.AddParameter("currency", currency);
+            restRequest.AddParameter("amount", amount);
+            restRequest.AddParameter("currency", currency);
 
-            builder.AddParameter("card[pan]", cc.pan);
+            restRequest.AddParameter("card[pan]", cc.pan);
 
             if (!String.IsNullOrWhiteSpace(cc.csc))
             {
-                builder.AddParameter("card[csc]", cc.csc);
+                restRequest.AddParameter("card[csc]", cc.csc);
             }
 
             if (!String.IsNullOrWhiteSpace(PARes))
             {
-                builder.AddParameter("card[pares]", PARes);
+                restRequest.AddParameter("card[pares]", PARes);
             }
 
-            builder.AddParameter("card[expire_month]", cc.expireMonth);
-            builder.AddParameter("card[expire_year]", cc.expireYear);
+            restRequest.AddParameter("card[expire_month]", cc.expireMonth);
+            restRequest.AddParameter("card[expire_year]", cc.expireYear);
 
             if (opts != null)
             {
-                builder.AddParameters(opts.GetParameters());
+                restRequest.AddParameters(opts.GetParameters());
             }
 
-            return builder;
+            return restRequest;
         }
 
         /// <summary>
@@ -442,14 +440,12 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
-        /* TODO:
-         * - payment-methods
-         */
         public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
         {
-
-            var builder = buildAuthorizeRequest(amount, currency, cc, PARes, opts);
-            return POSTtoObject<Authorization>(builder.Ready());
+            using(var restRequest = buildAuthorizeRequest(amount, currency, cc, PARes, opts))
+            {
+                return POSTtoObject<Authorization>(restRequest);
+            }
         }
 
         /// <summary>
@@ -466,11 +462,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Authorization> AuthorizeAsync(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
         {
-
-            var builder = buildAuthorizeRequest(amount, currency, cc, PARes, opts);
-            var POSTTask =  POSTtoObjectAsync<Authorization>(builder.Ready());
-
-            return await POSTTask;
+            using(var restRequest = buildAuthorizeRequest(amount, currency, cc, PARes, opts))
+            {
+                return await POSTtoObjectAsync<Authorization>(restRequest);
+            }
         }
 
         /*
@@ -487,8 +482,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Transaction.Void Void(string authorizationID)
         {
-            var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
-            return POSTtoObject<Transaction.Void>(builder.Ready());
+            using(var restRequest = buildRestRequest("authorizations/{0}/voids", authorizationID))
+            {
+                return POSTtoObject<Transaction.Void>(restRequest);
+            }
         }
 
         /// <summary>
@@ -501,30 +498,31 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Transaction.Void> VoidAsync(string authorizationID)
         {
-            var builder = newRestBuilder("authorizations/{0}/voids", authorizationID);
-            var voidTask = POSTtoObjectAsync<Transaction.Void>(builder.Ready());
-            return await voidTask;
+            using(var restRequest = buildRestRequest("authorizations/{0}/voids", authorizationID))
+            {
+                return await POSTtoObjectAsync<Transaction.Void>(restRequest);
+            }
         }
 
         /*
          * CAPTURE IMPLEMENTATION
          */
 
-        private RestRequestBuilder buildCaptureRequest(string id, string amount, string textOnStatement)
+        private RestRequest buildCaptureRequest(string id, string amount, string textOnStatement)
         {
-            var builder = newRestBuilder("authorizations/{0}/captures", id);
-
+            // Don't dispose restRequest, let caller do that.
+            var restRequest = buildRestRequest("authorizations/{0}/captures", id);
             if (!string.IsNullOrWhiteSpace(textOnStatement))
             {
-                builder.AddParameter("text_on_statement", textOnStatement);
+                restRequest.AddParameter("text_on_statement", textOnStatement);
             }
 
             if (!string.IsNullOrWhiteSpace(amount))
             {
-                builder.AddParameter("amount", amount);
+                restRequest.AddParameter("amount", amount);
             }
 
-            return builder;
+            return restRequest;
         }
 
         /// <summary>
@@ -540,8 +538,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Capture Capture(string id, string amount, string textOnStatement)
         {
-            var builder = buildCaptureRequest(id, amount, textOnStatement);
-            return POSTtoObject<Capture>(builder.Ready());
+            using(var restRequest = buildCaptureRequest(id, amount, textOnStatement))
+            {
+                return POSTtoObject<Capture>(restRequest);
+            }
         }
 
         /// <summary>
@@ -557,30 +557,31 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Capture> CaptureAsync(string id, string amount, string textOnStatement)
         {
-            var builder = buildCaptureRequest(id, amount, textOnStatement);
-            var objectTask = POSTtoObjectAsync<Capture>(builder.Ready());
-            return await objectTask;
+            using(var restRequest = buildCaptureRequest(id, amount, textOnStatement))
+            {
+                return await POSTtoObjectAsync<Capture>(restRequest);
+            }
         }
 
         /*
          * REFUND IMPLEMENTATION
          */
 
-        private RestRequestBuilder buildRefundRequest(string id, string amount, string textOnStatement)
+        private RestRequest buildRefundRequest(string id, string amount, string textOnStatement)
         {
-            var builder = newRestBuilder( "authorizations/{0}/refunds", id);
-
+            // Do not dispose restRequest, let caller handle that.
+            var restRequest = buildRestRequest( "authorizations/{0}/refunds", id);
             if (!string.IsNullOrWhiteSpace(amount))
             {
-                builder.AddParameter("amount", amount);
+                restRequest.AddParameter("amount", amount);
             }
 
             if (!string.IsNullOrWhiteSpace(textOnStatement))
             {
-                builder.AddParameter("text_on_statement", textOnStatement);
+                restRequest.AddParameter("text_on_statement", textOnStatement);
             }
 
-            return builder;
+            return restRequest;
         }
 
         /// <summary>
@@ -596,8 +597,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public Refund Refund(string id, string amount, string textOnStatement)
         {
-            var builder = buildRefundRequest(id, amount, textOnStatement);
-            return POSTtoObject<Refund>(builder.Ready());
+            using(var restRequest = buildRefundRequest(id, amount, textOnStatement))
+            {
+                return POSTtoObject<Refund>(restRequest);
+            }
         }
 
         /// <summary>
@@ -613,9 +616,10 @@ namespace Clearhaus.Gateway
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<Refund> RefundAsync(string id, string amount, string textOnStatement)
         {
-            var builder = buildRefundRequest(id, amount, textOnStatement);
-            var responseTask = POSTtoObjectAsync<Refund>(builder.Ready());
-            return await responseTask;
+            using(var restRequest = buildRefundRequest(id, amount, textOnStatement))
+            {
+                return await POSTtoObjectAsync<Refund>(restRequest);
+            }
         }
 
         /*
@@ -626,55 +630,57 @@ namespace Clearhaus.Gateway
          * For API reasons, we still need to tokenize the card before we can
          * perform a credit transaction
          */
-        private RestRequestBuilder buildTokenizeCardRequest(Card cc)
+        private RestRequest buildTokenizeCardRequest(Card cc)
         {
-            var builder = newRestBuilder("/cards");
-            builder.AddParameter("card[pan]", cc.pan);
-            builder.AddParameter("card[expire_month]", cc.expireMonth);
-            builder.AddParameter("card[expire_year]", cc.expireYear);
+            // Don't dispose restRequest, let caller handle that
+            var restRequest = buildRestRequest("/cards");
+            restRequest.AddParameter("card[pan]", cc.pan);
+            restRequest.AddParameter("card[expire_month]", cc.expireMonth);
+            restRequest.AddParameter("card[expire_year]", cc.expireYear);
             if (!string.IsNullOrWhiteSpace(cc.csc))
             {
-                builder.AddParameter("card[csc]", cc.csc);
+                restRequest.AddParameter("card[csc]", cc.csc);
             }
 
-            return builder;
+            return restRequest;
         }
 
         private TokenizedCard TokenizeCard(Card cc)
         {
-            var builder = buildTokenizeCardRequest(cc);
-            var tokCard = POSTtoObject<TokenizedCard>(builder.Ready());
-
-            return tokCard;
+            using(var restRequest = buildTokenizeCardRequest(cc))
+            {
+                return POSTtoObject<TokenizedCard>(restRequest);
+            }
         }
 
         async private Task<TokenizedCard> TokenizeCardAsync(Card cc)
         {
-            var builder = buildTokenizeCardRequest(cc);
-            var tokCardTask = POSTtoObjectAsync<TokenizedCard>(builder.Ready());
-
-            return await tokCardTask;
+            using(var restRequest = buildTokenizeCardRequest(cc))
+            {
+                return await POSTtoObjectAsync<TokenizedCard>(restRequest);
+            }
         }
 
-        private RestRequestBuilder buildCreditRequest(string amount, string currency, TokenizedCard cc, string textOnStatement, string reference)
+        private RestRequest buildCreditRequest(string amount, string currency, TokenizedCard cc, string textOnStatement, string reference)
         {
 
-            var builder = newRestBuilder("cards/{0}/credits", cc.id);
-            builder.AddParameter("id", cc.id);
-            builder.AddParameter("amount", amount);
-            builder.AddParameter("currency", currency);
+            // Do not dispose restRequest, let caller handle that.
+            var restRequest = buildRestRequest("cards/{0}/credits", cc.id);
+            restRequest.AddParameter("id", cc.id);
+            restRequest.AddParameter("amount", amount);
+            restRequest.AddParameter("currency", currency);
 
             if (!string.IsNullOrWhiteSpace(textOnStatement))
             {
-                builder.AddParameter("text_on_statement", textOnStatement);
+                restRequest.AddParameter("text_on_statement", textOnStatement);
             }
 
             if (!string.IsNullOrWhiteSpace(reference))
             {
-                builder.AddParameter("reference", reference);
+                restRequest.AddParameter("reference", reference);
             }
 
-            return builder;
+            return restRequest;
         }
 
         /// <summary>
@@ -695,10 +701,10 @@ namespace Clearhaus.Gateway
             // we can do a credit.
             var tokCard = TokenizeCard(cc);
 
-            var builder = buildCreditRequest(amount, currency, tokCard, textOnStatement, reference);
-            var credit = POSTtoObject<Credit>(builder.Ready());
-
-            return credit;
+            using(var restRequest = buildCreditRequest(amount, currency, tokCard, textOnStatement, reference))
+            {
+                return POSTtoObject<Credit>(restRequest);
+            }
         }
 
         /// <summary>
@@ -717,13 +723,12 @@ namespace Clearhaus.Gateway
         {
             // The API currently needs us to create a `cards/` resource before
             // we can do a credit.
-            var tokCardTask = TokenizeCardAsync(cc);
-            var tokCard = await tokCardTask;
+            var tokCard = await TokenizeCardAsync(cc);
 
-            var builder = buildCreditRequest(amount, currency, tokCard, textOnStatement, reference);
-            var creditTask = POSTtoObjectAsync<Credit>(builder.Ready());
-
-            return await creditTask;
+            using(var restRequest = buildCreditRequest(amount, currency, tokCard, textOnStatement, reference))
+            {
+                return await POSTtoObjectAsync<Credit>(restRequest);
+            }
         }
 
         /*
@@ -732,7 +737,6 @@ namespace Clearhaus.Gateway
 
         private void sign(RestRequest request)
         {
-
             byte[] bodyBytes = request.Body();
             var sha256 = new Sha256Digest();
 

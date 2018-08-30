@@ -9,8 +9,10 @@ namespace Clearhaus.Util
     /// <summary>
     /// Helper class for building rest request helper.
     /// </summary>
-    public class RestRequestBuilder
+    public class RestRequest: IDisposable
     {
+        private bool disposed;
+
         private IList<KeyValuePair<string, string>> bodyParameters;
         private string url;
         private FormUrlEncodedContent content;
@@ -18,7 +20,7 @@ namespace Clearhaus.Util
         private HttpClientHandler clientHandler;
 
         // Support username/password is for Http Basic auth
-        public RestRequestBuilder(Uri urlbase, string username, string password)
+        public RestRequest(Uri urlbase, string username, string password)
         {
             bodyParameters = new List<KeyValuePair<string, string>>();
 
@@ -49,35 +51,42 @@ namespace Clearhaus.Util
             }
         }
 
-        public RestRequest Ready()
+        /**
+         * Implement IDispose interface
+         **/
+        public void Dispose()
         {
-            content = new FormUrlEncodedContent(bodyParameters);
-            return new RestRequest(client, content, url);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
-    }
 
-    /// Help class for building rest requests.
-    public class RestRequest : IDisposable
-    {
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) {
+                return;
+            }
+
+            if (disposing) {
+            }
+
+            if (client        != null) { client.Dispose(); }
+            if (content       != null) { content.Dispose(); }
+            if (clientHandler != null) { clientHandler.Dispose(); }
+
+            disposed = true;
+        }
+
+        ~RestRequest()
+        {
+            Dispose(false);
+        }
+
         private static HttpStatusCode[] acceptedResponseCodes = new HttpStatusCode[]{
             HttpStatusCode.OK,
             HttpStatusCode.Created,
             HttpStatusCode.BadRequest,
         };
 
-        private string url;
-        private HttpContent content;
-        private HttpClient client;
-
-        private bool disposed;
-
-        public RestRequest(HttpClient client, HttpContent content , string url)
-        {
-            this.client = client;
-
-            this.content = content;
-            this.url = url;
-        }
 
         public void AddHeader(string key, string val)
         {
@@ -86,6 +95,11 @@ namespace Clearhaus.Util
 
         public HttpResponseMessage POST()
         {
+            if (content == null)
+            {
+                content = new FormUrlEncodedContent(bodyParameters);
+            }
+
             HttpResponseMessage response;
             try
             {
@@ -126,6 +140,10 @@ namespace Clearhaus.Util
 
         async public Task<HttpResponseMessage> POSTAsync()
         {
+            if (content == null)
+            {
+                content = new FormUrlEncodedContent(bodyParameters);
+            }
             HttpResponseMessage response;
             try
             {
@@ -228,31 +246,12 @@ namespace Clearhaus.Util
 
         public byte[] Body()
         {
+            if (content == null)
+            {
+                content = new FormUrlEncodedContent(bodyParameters);
+            }
             var task = content.ReadAsByteArrayAsync();
             return task.Result;
-        }
-
-        /**
-         * Implement IDispose interface
-         **/
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed) {
-                return;
-            }
-
-            if (disposing) {
-                client.Dispose();
-                content.Dispose();
-            }
-
-            disposed = true;
         }
     }
 }

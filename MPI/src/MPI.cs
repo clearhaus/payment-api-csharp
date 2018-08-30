@@ -115,19 +115,19 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public EnrollmentStatus EnrollCheck(EnrollCheckBuilder builder)
         {
-            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
-            rrb.SetPath("/enrolled");
+            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            {
+                restRequest.SetPath("/enrolled");
 
-            rrb.AddParameters(builder.GetArgs());
+                restRequest.AddParameters(builder.GetArgs());
 
-            var rr = rrb.Ready();
+                var response = restRequest.POST();
 
-            var response = rr.POST();
+                var body = response.Content.ReadAsStringAsync().Result;
+                var status = JsonConvert.DeserializeObject<EnrollmentStatus>(body);
 
-            var body = response.Content.ReadAsStringAsync().Result;
-            var status = JsonConvert.DeserializeObject<EnrollmentStatus>(body);
-
-            return status;
+                return status;
+            }
         }
 
         /// <summary>
@@ -142,20 +142,19 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<EnrollmentStatus> EnrollCheckAsync(EnrollCheckBuilder builder)
         {
-            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
-            rrb.SetPath("/enrolled");
+            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            {
+                restRequest.SetPath("/enrolled");
 
-            rrb.AddParameters(builder.GetArgs());
+                restRequest.AddParameters(builder.GetArgs());
 
-            var rr = rrb.Ready();
+                var response = await restRequest.POSTAsync();
 
-            var responseTask = rr.POSTAsync();
-            var response = await responseTask;
+                var body = response.Content.ReadAsStringAsync().Result;
+                var status = JsonConvert.DeserializeObject<EnrollmentStatus>(body);
 
-            var body = response.Content.ReadAsStringAsync().Result;
-            var status = JsonConvert.DeserializeObject<EnrollmentStatus>(body);
-
-            return status;
+                return status;
+            }
         }
 
         /// <summary>
@@ -170,18 +169,18 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public CheckResponse CheckPARes(string pares)
         {
-            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
-            rrb.SetPath("/check");
-            rrb.AddParameter("pares", pares);
+            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            {
+                restRequest.SetPath("/check");
+                restRequest.AddParameter("pares", pares);
 
-            var rr = rrb.Ready();
+                var response = restRequest.POST();
 
-            var response = rr.POST();
+                var body = response.Content.ReadAsStringAsync().Result;
+                var parsedResponse = JsonConvert.DeserializeObject<CheckResponse>(body);
 
-            var body = response.Content.ReadAsStringAsync().Result;
-            var parsedResponse = JsonConvert.DeserializeObject<CheckResponse>(body);
-
-            return parsedResponse;
+                return parsedResponse;
+            }
         }
 
         /// <summary>
@@ -196,18 +195,17 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<CheckResponse> CheckPAResAsync(string pares)
         {
-            var rrb = new RestRequestBuilder(this.mpiUrl, this.apikey, "");
-            rrb.SetPath("/check");
-            rrb.AddParameter("pares", pares);
+            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            {
+                restRequest.SetPath("/check");
+                restRequest.AddParameter("pares", pares);
 
-            var rr = rrb.Ready();
+                var response = await restRequest.POSTAsync();
+                var body = response.Content.ReadAsStringAsync().Result;
+                var parsedResponse = JsonConvert.DeserializeObject<CheckResponse>(body);
 
-            var responseTask = rr.POSTAsync();
-            var response = await responseTask;
-            var body = response.Content.ReadAsStringAsync().Result;
-            var parsedResponse = JsonConvert.DeserializeObject<CheckResponse>(body);
-
-            return parsedResponse;
+                return parsedResponse;
+            }
         }
     }
 }
