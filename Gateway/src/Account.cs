@@ -427,13 +427,67 @@ namespace Clearhaus.Gateway
             return restRequest;
         }
 
+        private RestRequest buildAuthorizeRequest(
+            string amount,
+            string currency,
+            ApplePayInfo apInfo,
+            AuthorizationRequestOptions opts)
+        {
+            var restRequest = buildRestRequest("authorizations/");
+
+            restRequest.AddParameter("amount", amount);
+            restRequest.AddParameter("currency", currency);
+            restRequest.AddParameter("applepay[payment_token]", apInfo.paymentData);
+            restRequest.AddParameter("applepay[symmetric_key]", apInfo.symmetricKey);
+
+            if (opts != null)
+            {
+                restRequest.AddParameters(opts.GetParameters());
+            }
+
+            return restRequest;
+        }
+
+        private RestRequest buildAuthorizeRequest(
+            string amount,
+            string currency,
+            MobilePayOnlineInfo mpoInfo,
+            AuthorizationRequestOptions opts)
+        {
+            var restRequest = buildRestRequest("authorizations/");
+
+            restRequest.AddParameter("amount", amount);
+            restRequest.AddParameter("currency", currency);
+
+            restRequest.AddParameter("mobilepayonline[pan]", mpoInfo.pan);
+            restRequest.AddParameter("mobilepayonline[expire_year]", mpoInfo.expireYear);
+            restRequest.AddParameter("mobilepayonline[expire_month]", mpoInfo.expireMonth);
+
+            if (!string.IsNullOrWhiteSpace(mpoInfo.phoneNumber))
+            {
+                restRequest.AddParameter("mobilepayonline[phone_number]", mpoInfo.phoneNumber);
+            }
+
+            if (!string.IsNullOrWhiteSpace(mpoInfo.pares))
+            {
+                restRequest.AddParameter("mobilepayonline[pares]", mpoInfo.pares);
+            }
+
+            if (opts != null)
+            {
+                restRequest.AddParameters(opts.GetParameters());
+            }
+
+            return restRequest;
+        }
+
         /// <summary>
         /// Creates an authorization against the Gateway.
         /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
         /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
-        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Omittable, see Clearhaus Documentation)</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Required)</param>
         /// <param name="PARes">3D-Secure result (omittable)</param>
         /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
@@ -453,7 +507,7 @@ namespace Clearhaus.Gateway
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
         /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
-        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Omittable, see Clearhaus Documentation)</param>
+        /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Required)</param>
         /// <param name="PARes">3D-Secure result (omittable)</param>
         /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
@@ -463,6 +517,88 @@ namespace Clearhaus.Gateway
         async public Task<Authorization> AuthorizeAsync(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
         {
             using(var restRequest = buildAuthorizeRequest(amount, currency, cc, PARes, opts))
+            {
+                return await POSTtoObjectAsync<Authorization>(restRequest);
+            }
+        }
+
+        /// <summary>
+        /// Creates an authorization against the Gateway.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
+        /// <param name="apInfo">Apple Pay payment information (Required)</param>
+        /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
+        /// <remarks>Signing must be enabled for this method to function</remarks>
+        public Authorization Authorize(string amount, string currency, ApplePayInfo apInfo, AuthorizationRequestOptions opts)
+        {
+            using(var restRequest = buildAuthorizeRequest(amount, currency, apInfo, opts))
+            {
+                return POSTtoObject<Authorization>(restRequest);
+            }
+        }
+
+        /// <summary>
+        /// <see cref="Authorize(string, string, ApplePayInfo, AuthorizationRequestOptions)"/>
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
+        /// <param name="apInfo">Apple Pay payment information (Required)</param>
+        /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
+        /// <remarks>Signing must be enabled for this method to function</remarks>
+        async public Task<Authorization> AuthorizeAsync(string amount, string currency, ApplePayInfo apInfo, AuthorizationRequestOptions opts)
+        {
+            using(var restRequest = buildAuthorizeRequest(amount, currency, apInfo, opts))
+            {
+                return await POSTtoObjectAsync<Authorization>(restRequest);
+            }
+        }
+
+        /// <summary>
+        /// Creates an authorization against the Gateway.
+        /// See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
+        /// <param name="mpoInfo">MobilePay Online payment information (Required)</param>
+        /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
+        /// <remarks>Signing must be enabled for this method to function</remarks>
+        public Authorization Authorize(string amount, string currency, MobilePayOnlineInfo mpoInfo, AuthorizationRequestOptions opts)
+        {
+            using(var restRequest = buildAuthorizeRequest(amount, currency, mpoInfo, opts))
+            {
+                return POSTtoObject<Authorization>(restRequest);
+            }
+        }
+
+        /// <summary>
+        /// <see cref="Authorize(string, string, MobilePayOnlineInfo, AuthorizationRequestOptions)"/>
+        /// </summary>
+        /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
+        /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
+        /// <param name="mpoInfo">MobilePay Online payment information (Required)</param>
+        /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
+        /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
+        /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
+        /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
+        /// <exception cref="ClrhsException">Unexpected connection error</exception>
+        /// <remarks>Signing must be enabled for this method to function</remarks>
+        async public Task<Authorization> AuthorizeAsync(string amount, string currency, MobilePayOnlineInfo mpoInfo, AuthorizationRequestOptions opts)
+        {
+            using(var restRequest = buildAuthorizeRequest(amount, currency, mpoInfo, opts))
             {
                 return await POSTtoObjectAsync<Authorization>(restRequest);
             }

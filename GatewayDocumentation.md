@@ -9,7 +9,11 @@
   - [gatewayURL](#F-Clearhaus-Gateway-Account-gatewayURL 'Clearhaus.Gateway.Account.gatewayURL')
   - [Timeout](#F-Clearhaus-Gateway-Account-Timeout 'Clearhaus.Gateway.Account.Timeout')
   - [Authorize(amount,currency,cc,PARes,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.AuthorizationRequestOptions)')
+  - [Authorize(amount,currency,apInfo,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-ApplePayInfo,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.ApplePayInfo,Clearhaus.Gateway.AuthorizationRequestOptions)')
+  - [Authorize(amount,currency,mpoInfo,opts)](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-MobilePayOnlineInfo,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.MobilePayOnlineInfo,Clearhaus.Gateway.AuthorizationRequestOptions)')
   - [AuthorizeAsync(amount,currency,cc,PARes,opts)](#M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.AuthorizeAsync(System.String,System.String,Clearhaus.Gateway.Card,System.String,Clearhaus.Gateway.AuthorizationRequestOptions)')
+  - [AuthorizeAsync(amount,currency,apInfo,opts)](#M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-ApplePayInfo,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.AuthorizeAsync(System.String,System.String,Clearhaus.Gateway.ApplePayInfo,Clearhaus.Gateway.AuthorizationRequestOptions)')
+  - [AuthorizeAsync(amount,currency,mpoInfo,opts)](#M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-MobilePayOnlineInfo,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.AuthorizeAsync(System.String,System.String,Clearhaus.Gateway.MobilePayOnlineInfo,Clearhaus.Gateway.AuthorizationRequestOptions)')
   - [Capture(id,amount,textOnStatement)](#M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.Capture(System.String,System.String,System.String)')
   - [CaptureAsync(id,amount,textOnStatement)](#M-Clearhaus-Gateway-Account-CaptureAsync-System-String,System-String,System-String- 'Clearhaus.Gateway.Account.CaptureAsync(System.String,System.String,System.String)')
   - [Credit(amount,currency,cc,textOnStatement,reference)](#M-Clearhaus-Gateway-Account-Credit-System-String,System-String,Clearhaus-Gateway-Card,System-String,System-String- 'Clearhaus.Gateway.Account.Credit(System.String,System.String,Clearhaus.Gateway.Card,System.String,System.String)')
@@ -34,6 +38,9 @@
 - [Acquirer](#T-Clearhaus-Gateway-Acquirer 'Clearhaus.Gateway.Acquirer')
   - [mastercardBin](#P-Clearhaus-Gateway-Acquirer-mastercardBin 'Clearhaus.Gateway.Acquirer.mastercardBin')
   - [visaBin](#P-Clearhaus-Gateway-Acquirer-visaBin 'Clearhaus.Gateway.Acquirer.visaBin')
+- [ApplePayInfo](#T-Clearhaus-Gateway-ApplePayInfo 'Clearhaus.Gateway.ApplePayInfo')
+  - [paymentData](#P-Clearhaus-Gateway-ApplePayInfo-paymentData 'Clearhaus.Gateway.ApplePayInfo.paymentData')
+  - [symmetricKey](#P-Clearhaus-Gateway-ApplePayInfo-symmetricKey 'Clearhaus.Gateway.ApplePayInfo.symmetricKey')
 - [Authorization](#T-Clearhaus-Gateway-Transaction-Authorization 'Clearhaus.Gateway.Transaction.Authorization')
   - [cscStatus](#F-Clearhaus-Gateway-Transaction-Authorization-cscStatus 'Clearhaus.Gateway.Transaction.Authorization.cscStatus')
 - [AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions')
@@ -65,6 +72,12 @@
 - [CSCStatus](#T-Clearhaus-Gateway-Transaction-CSCStatus 'Clearhaus.Gateway.Transaction.CSCStatus')
   - [matches](#P-Clearhaus-Gateway-Transaction-CSCStatus-matches 'Clearhaus.Gateway.Transaction.CSCStatus.matches')
   - [present](#P-Clearhaus-Gateway-Transaction-CSCStatus-present 'Clearhaus.Gateway.Transaction.CSCStatus.present')
+- [MobilePayOnlineInfo](#T-Clearhaus-Gateway-MobilePayOnlineInfo 'Clearhaus.Gateway.MobilePayOnlineInfo')
+  - [expireMonth](#P-Clearhaus-Gateway-MobilePayOnlineInfo-expireMonth 'Clearhaus.Gateway.MobilePayOnlineInfo.expireMonth')
+  - [expireYear](#P-Clearhaus-Gateway-MobilePayOnlineInfo-expireYear 'Clearhaus.Gateway.MobilePayOnlineInfo.expireYear')
+  - [pan](#P-Clearhaus-Gateway-MobilePayOnlineInfo-pan 'Clearhaus.Gateway.MobilePayOnlineInfo.pan')
+  - [pares](#P-Clearhaus-Gateway-MobilePayOnlineInfo-pares 'Clearhaus.Gateway.MobilePayOnlineInfo.pares')
+  - [phoneNumber](#P-Clearhaus-Gateway-MobilePayOnlineInfo-phoneNumber 'Clearhaus.Gateway.MobilePayOnlineInfo.phoneNumber')
 - [Refund](#T-Clearhaus-Gateway-Transaction-Refund 'Clearhaus.Gateway.Transaction.Refund')
 - [Status](#T-Clearhaus-Gateway-Transaction-Status 'Clearhaus.Gateway.Transaction.Status')
   - [code](#F-Clearhaus-Gateway-Transaction-Status-code 'Clearhaus.Gateway.Transaction.Status.code')
@@ -218,7 +231,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | ---- | ---- | ----------- |
 | amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency`(Required) |
 | currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified (Required) |
-| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card')(Omittable, see Clearhaus Documentation) |
+| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card')(Required) |
 | PARes | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | 3D-Secure result (omittable) |
 | opts | [Clearhaus.Gateway.AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions') | Optional parameters for authorizations or null (Omittable) |
 
@@ -230,6 +243,66 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
 | [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+<a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-ApplePayInfo,Clearhaus-Gateway-AuthorizationRequestOptions-'></a>
+### Authorize(amount,currency,apInfo,opts) `method`
+
+##### Summary
+
+Creates an authorization against the Gateway.
+See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency`(Required) |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified (Required) |
+| apInfo | [Clearhaus.Gateway.ApplePayInfo](#T-Clearhaus-Gateway-ApplePayInfo 'Clearhaus.Gateway.ApplePayInfo') | Apple Pay payment information (Required) |
+| opts | [Clearhaus.Gateway.AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions') | Optional parameters for authorizations or null (Omittable) |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+##### Remarks
+
+Signing must be enabled for this method to function
+
+<a name='M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-MobilePayOnlineInfo,Clearhaus-Gateway-AuthorizationRequestOptions-'></a>
+### Authorize(amount,currency,mpoInfo,opts) `method`
+
+##### Summary
+
+Creates an authorization against the Gateway.
+See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#authentication
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency`(Required) |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified (Required) |
+| mpoInfo | [Clearhaus.Gateway.MobilePayOnlineInfo](#T-Clearhaus-Gateway-MobilePayOnlineInfo 'Clearhaus.Gateway.MobilePayOnlineInfo') | MobilePay Online payment information (Required) |
+| opts | [Clearhaus.Gateway.AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions') | Optional parameters for authorizations or null (Omittable) |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+##### Remarks
+
+Signing must be enabled for this method to function
 
 <a name='M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-Card,System-String,Clearhaus-Gateway-AuthorizationRequestOptions-'></a>
 ### AuthorizeAsync(amount,currency,cc,PARes,opts) `method`
@@ -244,7 +317,7 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | ---- | ---- | ----------- |
 | amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency`(Required) |
 | currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified (Required) |
-| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card')(Omittable, see Clearhaus Documentation) |
+| cc | [Clearhaus.Gateway.Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card') | Card to authorize against. [Card](#T-Clearhaus-Gateway-Card 'Clearhaus.Gateway.Card')(Required) |
 | PARes | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | 3D-Secure result (omittable) |
 | opts | [Clearhaus.Gateway.AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions') | Optional parameters for authorizations or null (Omittable) |
 
@@ -256,6 +329,64 @@ See https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#au
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
 | [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+<a name='M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-ApplePayInfo,Clearhaus-Gateway-AuthorizationRequestOptions-'></a>
+### AuthorizeAsync(amount,currency,apInfo,opts) `method`
+
+##### Summary
+
+[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-ApplePayInfo,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.ApplePayInfo,Clearhaus.Gateway.AuthorizationRequestOptions)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency`(Required) |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified (Required) |
+| apInfo | [Clearhaus.Gateway.ApplePayInfo](#T-Clearhaus-Gateway-ApplePayInfo 'Clearhaus.Gateway.ApplePayInfo') | Apple Pay payment information (Required) |
+| opts | [Clearhaus.Gateway.AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions') | Optional parameters for authorizations or null (Omittable) |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+##### Remarks
+
+Signing must be enabled for this method to function
+
+<a name='M-Clearhaus-Gateway-Account-AuthorizeAsync-System-String,System-String,Clearhaus-Gateway-MobilePayOnlineInfo,Clearhaus-Gateway-AuthorizationRequestOptions-'></a>
+### AuthorizeAsync(amount,currency,mpoInfo,opts) `method`
+
+##### Summary
+
+[Authorize](#M-Clearhaus-Gateway-Account-Authorize-System-String,System-String,Clearhaus-Gateway-MobilePayOnlineInfo,Clearhaus-Gateway-AuthorizationRequestOptions- 'Clearhaus.Gateway.Account.Authorize(System.String,System.String,Clearhaus.Gateway.MobilePayOnlineInfo,Clearhaus.Gateway.AuthorizationRequestOptions)')
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| amount | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Amount of money to reserve, minor units of `currency`(Required) |
+| currency | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Currency in which `amount`is specified (Required) |
+| mpoInfo | [Clearhaus.Gateway.MobilePayOnlineInfo](#T-Clearhaus-Gateway-MobilePayOnlineInfo 'Clearhaus.Gateway.MobilePayOnlineInfo') | MobilePay Online payment information (Required) |
+| opts | [Clearhaus.Gateway.AuthorizationRequestOptions](#T-Clearhaus-Gateway-AuthorizationRequestOptions 'Clearhaus.Gateway.AuthorizationRequestOptions') | Optional parameters for authorizations or null (Omittable) |
+
+##### Exceptions
+
+| Name | Description |
+| ---- | ----------- |
+| [Clearhaus.ClrhsNetException](#T-Clearhaus-ClrhsNetException 'Clearhaus.ClrhsNetException') | Network error communicating with gateway |
+| [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
+| [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
+| [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+##### Remarks
+
+Signing must be enabled for this method to function
 
 <a name='M-Clearhaus-Gateway-Account-Capture-System-String,System-String,System-String-'></a>
 ### Capture(id,amount,textOnStatement) `method`
@@ -675,6 +806,31 @@ BIN for MasterCard systems
 
 BIN for VISA systems
 
+<a name='T-Clearhaus-Gateway-ApplePayInfo'></a>
+## ApplePayInfo `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+Represents the details required for performing a payment using Apple Pay
+
+<a name='P-Clearhaus-Gateway-ApplePayInfo-paymentData'></a>
+### paymentData `property`
+
+##### Summary
+
+paymentData of Apple Pay PKPaymentToken
+
+<a name='P-Clearhaus-Gateway-ApplePayInfo-symmetricKey'></a>
+### symmetricKey `property`
+
+##### Summary
+
+Symmetric key used to decrypt `data`key of `paymentData`
+
 <a name='T-Clearhaus-Gateway-Transaction-Authorization'></a>
 ## Authorization `type`
 
@@ -952,6 +1108,52 @@ Whether the CSC matched
 ##### Summary
 
 Whether the CSC was present in authorization
+
+<a name='T-Clearhaus-Gateway-MobilePayOnlineInfo'></a>
+## MobilePayOnlineInfo `type`
+
+##### Namespace
+
+Clearhaus.Gateway
+
+##### Summary
+
+Represents MPO information needed for a transaction
+
+<a name='P-Clearhaus-Gateway-MobilePayOnlineInfo-expireMonth'></a>
+### expireMonth `property`
+
+##### Summary
+
+Month of card expiry
+
+<a name='P-Clearhaus-Gateway-MobilePayOnlineInfo-expireYear'></a>
+### expireYear `property`
+
+##### Summary
+
+Year of card expiry
+
+<a name='P-Clearhaus-Gateway-MobilePayOnlineInfo-pan'></a>
+### pan `property`
+
+##### Summary
+
+Primary Account Number of card
+
+<a name='P-Clearhaus-Gateway-MobilePayOnlineInfo-pares'></a>
+### pares `property`
+
+##### Summary
+
+3D-Secure PARes (optional)
+
+<a name='P-Clearhaus-Gateway-MobilePayOnlineInfo-phoneNumber'></a>
+### phoneNumber `property`
+
+##### Summary
+
+Phone number (optional)
 
 <a name='T-Clearhaus-Gateway-Transaction-Refund'></a>
 ## Refund `type`

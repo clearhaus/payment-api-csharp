@@ -10,6 +10,16 @@ namespace Clearhaus.Gateway.Test
             return new Card("4111111111111111", "12", "2020", "584");
         }
 
+        public static MobilePayOnlineInfo GetStagingMPOInfo()
+        {
+            // This is not a valid card.
+            return new MobilePayOnlineInfo{
+                pan = "4111111111111111",
+                expireMonth ="12",
+                expireYear ="2020"
+            };
+        }
+
         public static string GetPrivateKey()
         {
             var signingKey = Environment.GetEnvironmentVariable("RSAKEY");
@@ -31,6 +41,17 @@ namespace Clearhaus.Gateway.Test
             }
 
             return apiKey;
+        }
+
+        public static string GetPARes()
+        {
+            var PARes = System.Environment.GetEnvironmentVariable("PARES");
+
+            if (String.IsNullOrWhiteSpace(PARes)) {
+                throw new System.ApplicationException("No APIKey found in environment");
+            }
+
+            return PARes;
         }
 
         public static Gateway.Account GetStagingAccount()

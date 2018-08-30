@@ -92,5 +92,58 @@ namespace Clearhaus.Gateway.Test
 
             Assert.True(credit.IsSuccess());
         }
+
+        /**
+         * MobilePayOnline tests
+         */
+        [Fact]
+        public void ItCreatesMobilePayOnlineAuthorization()
+        {
+            var account = Util.GetSigningStagingAccount();
+            var mpoInfo = Util.GetStagingMPOInfo();
+            var auth = account.Authorize("100", "DKK", mpoInfo, null);
+
+            if (!auth.IsSuccess())
+            {
+                System.Console.WriteLine(auth.status.message);
+            }
+
+            Assert.NotNull(auth);
+            Assert.True(auth.IsSuccess());
+        }
+
+        [Fact]
+        public void ItCreatesMobilePayOnlineAuthorizationWithPhoneNumber()
+        {
+            var account = Util.GetSigningStagingAccount();
+            var mpoInfo = Util.GetStagingMPOInfo();
+            mpoInfo.phoneNumber = "12445678";
+            var auth = account.Authorize("100", "DKK", mpoInfo, null);
+
+            if (!auth.IsSuccess())
+            {
+                System.Console.WriteLine(auth.status.message);
+            }
+
+            Assert.NotNull(auth);
+            Assert.True(auth.IsSuccess());
+        }
+
+        [Fact(Skip="This is not live yet")]
+        public void ItCreatesMobilePayOnlineAuthorizationWithPARes()
+        {
+            var account = Util.GetSigningStagingAccount();
+            var mpoInfo = Util.GetStagingMPOInfo();
+            mpoInfo.pares = Util.GetPARes();
+            var auth = account.Authorize("100", "DKK", mpoInfo, null);
+
+            if (!auth.IsSuccess())
+            {
+                System.Console.WriteLine(auth.status.message);
+            }
+
+            Assert.NotNull(auth);
+            Assert.True(auth.IsSuccess());
+        }
     }
 }
