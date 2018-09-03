@@ -29,7 +29,6 @@
   - [merchantName](#F-Clearhaus-MPI-Builder-EnrollCheckBuilder-merchantName 'Clearhaus.MPI.Builder.EnrollCheckBuilder.merchantName')
   - [merchantUrl](#F-Clearhaus-MPI-Builder-EnrollCheckBuilder-merchantUrl 'Clearhaus.MPI.Builder.EnrollCheckBuilder.merchantUrl')
   - [orderID](#F-Clearhaus-MPI-Builder-EnrollCheckBuilder-orderID 'Clearhaus.MPI.Builder.EnrollCheckBuilder.orderID')
-  - [GetArgs()](#M-Clearhaus-MPI-Builder-EnrollCheckBuilder-GetArgs 'Clearhaus.MPI.Builder.EnrollCheckBuilder.GetArgs')
 - [EnrollmentStatus](#T-Clearhaus-MPI-Representers-EnrollmentStatus 'Clearhaus.MPI.Representers.EnrollmentStatus')
   - [acsUrl](#F-Clearhaus-MPI-Representers-EnrollmentStatus-acsUrl 'Clearhaus.MPI.Representers.EnrollmentStatus.acsUrl')
   - [eci](#F-Clearhaus-MPI-Representers-EnrollmentStatus-eci 'Clearhaus.MPI.Representers.EnrollmentStatus.eci')
@@ -37,12 +36,16 @@
   - [error](#F-Clearhaus-MPI-Representers-EnrollmentStatus-error 'Clearhaus.MPI.Representers.EnrollmentStatus.error')
   - [pareq](#F-Clearhaus-MPI-Representers-EnrollmentStatus-pareq 'Clearhaus.MPI.Representers.EnrollmentStatus.pareq')
 - [MPI](#T-Clearhaus-MPI-MPI 'Clearhaus.MPI.MPI')
-  - [#ctor(apikey)](#M-Clearhaus-MPI-MPI-#ctor-System-String- 'Clearhaus.MPI.MPI.#ctor(System.String)')
-  - [#ctor(apikey,mpiUrl)](#M-Clearhaus-MPI-MPI-#ctor-System-String,System-String- 'Clearhaus.MPI.MPI.#ctor(System.String,System.String)')
+  - [#ctor(apiKey)](#M-Clearhaus-MPI-MPI-#ctor-System-String- 'Clearhaus.MPI.MPI.#ctor(System.String)')
+  - [#ctor(apiKey,mpiUrl)](#M-Clearhaus-MPI-MPI-#ctor-System-String,System-String- 'Clearhaus.MPI.MPI.#ctor(System.String,System.String)')
+  - [timeout](#F-Clearhaus-MPI-MPI-timeout 'Clearhaus.MPI.MPI.timeout')
   - [CheckPARes(pares)](#M-Clearhaus-MPI-MPI-CheckPARes-System-String- 'Clearhaus.MPI.MPI.CheckPARes(System.String)')
   - [CheckPAResAsync(pares)](#M-Clearhaus-MPI-MPI-CheckPAResAsync-System-String- 'Clearhaus.MPI.MPI.CheckPAResAsync(System.String)')
+  - [Dispose()](#M-Clearhaus-MPI-MPI-Dispose 'Clearhaus.MPI.MPI.Dispose')
+  - [Dispose()](#M-Clearhaus-MPI-MPI-Dispose-System-Boolean- 'Clearhaus.MPI.MPI.Dispose(System.Boolean)')
   - [EnrollCheck(builder)](#M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder- 'Clearhaus.MPI.MPI.EnrollCheck(Clearhaus.MPI.Builder.EnrollCheckBuilder)')
   - [EnrollCheckAsync(builder)](#M-Clearhaus-MPI-MPI-EnrollCheckAsync-Clearhaus-MPI-Builder-EnrollCheckBuilder- 'Clearhaus.MPI.MPI.EnrollCheckAsync(Clearhaus.MPI.Builder.EnrollCheckBuilder)')
+  - [Finalize()](#M-Clearhaus-MPI-MPI-Finalize 'Clearhaus.MPI.MPI.Finalize')
   - [SetEndpoint(mpiUrl)](#M-Clearhaus-MPI-MPI-SetEndpoint-System-String- 'Clearhaus.MPI.MPI.SetEndpoint(System.String)')
 
 <a name='T-Clearhaus-MPI-Representers-CheckResponse'></a>
@@ -245,17 +248,6 @@ URL of merchant page
 
 Unique transaction identifier
 
-<a name='M-Clearhaus-MPI-Builder-EnrollCheckBuilder-GetArgs'></a>
-### GetArgs() `method`
-
-##### Summary
-
-Extract object data as a list, for creating request.
-
-##### Parameters
-
-This method has no parameters.
-
 <a name='T-Clearhaus-MPI-Representers-EnrollmentStatus'></a>
 ## EnrollmentStatus `type`
 
@@ -311,57 +303,64 @@ Clearhaus.MPI
 
 ##### Summary
 
-MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as a MPI service.
+MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as an MPI service.
 
 ##### Example
 
 ```C#
  using Clearhaus.MPI;
  using Clearhaus.MPI.Builder;
- using Clearhaus.MPI.Representers;
- string apiKey = "SOME UUID APIKEY";
- var mpiAccount = new MPI(apiKey);
- var builder = new EnrollCheckBuilder {
-     amount              = "100",
-     currency            = "DKK",
-     orderID             = "SOME ID",
-     cardholderIP        = "1.1.1.1",
-     cardNumber          = "SOME PAN",
-     cardExpireMonth     = "04",
-     cardExpireYear      = "2030",
-     merchantAcquirerBin = "SOME BIN",
-     merchantCountry     = "DK",
-     merchantID          = "SOME ID",
-     merchantName        = "MyMerchant",
-     merchantUrl         = "http://mymerchant.com"
- };
- EnrollmentStatus response;
- try
+ public static void main()
  {
-     response = mpiAccount.EnrollCheck(builder);
- }
- catch(ClrhsNetException e)
- {
-     // Handle
- }
- catch(ClrhsGatewayException e)
- {
-     // Something is wrong on server-side
- }
- catch(ClrhsAuthException e)
- {
-     // Invalid APIKey. This should not happen if you have tested your
-     // key.
- }
- if (response.enrolled == "Y")
- {
-     // Continue 3D-Secure procedure
+         string apiKey = "SOME UUID APIKEY";
+         // Can be disposed by `#Dispose()` or will be GC'd automatically.
+         var mpiAccount = new MPI(apiKey);
+         var builder = new EnrollCheckBuilder {
+             amount              = "100",
+             currency            = "DKK",
+             orderID             = "SOME ID",
+             cardholderIP        = "1.1.1.1",
+             cardNumber          = "SOME PAN",
+             cardExpireMonth     = "04",
+             cardExpireYear      = "2030",
+             merchantAcquirerBin = "SOME BIN",
+             merchantCountry     = "DK",
+             merchantID          = "SOME ID",
+             merchantName        = "MyMerchant",
+             merchantUrl         = "http://mymerchant.com"
+         };
+         EnrollmentStatus response;
+         try
+         {
+             response = mpiAccount.EnrollCheck(builder);
+         }
+         catch(ClrhsNetException e)
+         {
+             // Handle
+         }
+         catch(ClrhsGatewayException e)
+         {
+             // Something is wrong on server-side
+         }
+         catch(ClrhsAuthException e)
+         {
+             // Invalid APIKey. This should not happen if you have tested your
+             // key.
+         }
+         catch(ClrhsException e)
+         {
+             // Last effort exception
+         }
+         if (response.enrolled == "Y")
+         {
+             // Continue 3D-Secure procedure
+         }
  }
   
 ```
 
 <a name='M-Clearhaus-MPI-MPI-#ctor-System-String-'></a>
-### #ctor(apikey) `constructor`
+### #ctor(apiKey) `constructor`
 
 ##### Summary
 
@@ -371,10 +370,10 @@ Temporary documentation
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| apikey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID representing your 3dsecure.io account |
+| apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID representing your 3dsecure.io account |
 
 <a name='M-Clearhaus-MPI-MPI-#ctor-System-String,System-String-'></a>
-### #ctor(apikey,mpiUrl) `constructor`
+### #ctor(apiKey,mpiUrl) `constructor`
 
 ##### Summary
 
@@ -384,7 +383,7 @@ Temporary documentation
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| apikey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID representing your 3dsecure.io account |
+| apiKey | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | UUID representing your 3dsecure.io account |
 | mpiUrl | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | URL to use as API mpiUrl |
 
 ##### Exceptions
@@ -393,6 +392,13 @@ Temporary documentation
 | ---- | ----------- |
 | [System.ArgumentNullException](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.ArgumentNullException 'System.ArgumentNullException') | If mpiUrl is null |
 | [System.UriFormatException](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.UriFormatException 'System.UriFormatException') | If mpiUrl is invalid URI |
+
+<a name='F-Clearhaus-MPI-MPI-timeout'></a>
+### timeout `constants`
+
+##### Summary
+
+The default timespan used for HttpClient, 40s)
 
 <a name='M-Clearhaus-MPI-MPI-CheckPARes-System-String-'></a>
 ### CheckPARes(pares) `method`
@@ -438,6 +444,28 @@ Checks the `PARes`, returning results.
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
 | [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
 
+<a name='M-Clearhaus-MPI-MPI-Dispose'></a>
+### Dispose() `method`
+
+##### Summary
+
+IDisposable Interface
+
+##### Parameters
+
+This method has no parameters.
+
+<a name='M-Clearhaus-MPI-MPI-Dispose-System-Boolean-'></a>
+### Dispose() `method`
+
+##### Summary
+
+IDisposable Interface
+
+##### Parameters
+
+This method has no parameters.
+
 <a name='M-Clearhaus-MPI-MPI-EnrollCheck-Clearhaus-MPI-Builder-EnrollCheckBuilder-'></a>
 ### EnrollCheck(builder) `method`
 
@@ -481,6 +509,17 @@ Query the MPI service, returning `PARes`and `ACSUrl`to allow continuing the 3DS 
 | [Clearhaus.ClrhsAuthException](#T-Clearhaus-ClrhsAuthException 'Clearhaus.ClrhsAuthException') | Thrown if APIKey is invalid |
 | [Clearhaus.ClrhsGatewayException](#T-Clearhaus-ClrhsGatewayException 'Clearhaus.ClrhsGatewayException') | Thrown if gateway responds with internal server error |
 | [Clearhaus.ClrhsException](#T-Clearhaus-ClrhsException 'Clearhaus.ClrhsException') | Unexpected connection error |
+
+<a name='M-Clearhaus-MPI-MPI-Finalize'></a>
+### Finalize() `method`
+
+##### Summary
+
+Disposes unmanaged objects.
+
+##### Parameters
+
+This method has no parameters.
 
 <a name='M-Clearhaus-MPI-MPI-SetEndpoint-System-String-'></a>
 ### SetEndpoint(mpiUrl) `method`

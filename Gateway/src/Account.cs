@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Org.BouncyCastle.OpenSsl;
@@ -38,6 +39,8 @@ namespace Clearhaus.Gateway
     ///         csc         = "666"
     ///     };
     ///
+    ///     // The `Account` destructor disposes of the HttpClient,
+    ///     // it is also possible to call `#Dispose` manually.
     ///     var account = new Account(apiKey);
     ///
     ///     var authOptions = new AuthorizationRequestOptions
@@ -49,7 +52,13 @@ namespace Clearhaus.Gateway
     ///     Authorization myAuth;
     ///     try
     ///     {
-    ///         myAuth = new Authorize("100", "DKK", card, authOptions);
+    ///         myAuth = account.Authorize("100", "DKK", card, null, authOptions);
+    ///
+    ///         if (!myAuth.IsSuccess())
+    ///         {
+    ///             // The statuscode returned implies that an error occurred.
+    ///             Console.WriteLine(myAuth.status.message);
+    ///         }
     ///     }
     ///     catch(ClrhsNetException e)
     ///     {
@@ -71,11 +80,10 @@ namespace Clearhaus.Gateway
     ///         // You could retry this, but maybe give it a few seconds.
     ///         return;
     ///     }
-    ///
-    ///     if (!myAuth.IsSuccess())
+    ///     catch(ClrhsException e)
     ///     {
-    ///         // The statuscode returned implies that an error occurred.
-    ///         Console.WriteLine(auth.status.message);
+    ///         // Last effort exception
+    ///         System.Console.WriteLine(e.Message);
     ///     }
     /// }
     /// </code>
@@ -85,22 +93,42 @@ namespace Clearhaus.Gateway
     /// Result objects have a <c>status</c> field which contains a <c>code</c> and a <c>message</c>.
     /// These codes/messages can be looked up here https://github.com/clearhaus/gateway-api-docs/blob/master/source/index.md#transaction-status-codes.
     /// </remarks>
-    public class Account
+    public class Account : IDisposable
     {
-        internal string apiKey;
-        internal string signingAPIKey;
-        internal AsymmetricCipherKeyPair rsaKeyPair;
+        private string apiKey;
 
-        internal bool canSign;
+        // API-key used for signing requests, not used for authentication.
+        private string signingAPIKey;
+        // RSA private key used signing the body of requests, before being sent.
+        private AsymmetricCipherKeyPair rsaKeyPair;
 
-        /// <summary>
-        /// Set the timeout for all following requests against the Gateway.
-        /// </summary>
-        /// <remarks>
-        /// Default value is 5 seconds.
-        /// This value is passed straight through to a System.Net.HttpClient object without verification.
-        /// </remarks>
-        public TimeSpan Timeout;
+        // Used to test if signing credentials were added.
+        private bool canSign;
+
+        // If we have been disposed.
+        private bool disposed;
+
+        private HttpClient httpClient;
+
+        /// <summary>The default timespan used for HttpClient, 40s)</summary>
+        public readonly TimeSpan Timeout = new TimeSpan(0, 0, 40);
+
+        private void InitializeHttpClient()
+        {
+            var clientHandler = new HttpClientHandler {
+                Credentials = new System.Net.NetworkCredential(this.apiKey, "")
+            };
+
+            // Tell it to dispose the HttpClientHandler, so we don't need to.
+            this.httpClient = new HttpClient(clientHandler, true) {
+                BaseAddress = this.gatewayURL,
+            };
+
+            if (this.Timeout != null)
+            {
+                httpClient.Timeout = this.Timeout;
+            }
+        }
 
         /// <summary>
         /// URL address of Clearhaus Gateway. By default <c>Constants.GatewayURL</c>.
@@ -116,8 +144,27 @@ namespace Clearhaus.Gateway
         public Account(string apiKey)
         {
             this.apiKey = apiKey;
-            this.Timeout = new TimeSpan(0, 0, 5);
             this.gatewayURL = new Uri(Constants.GatewayURL);
+
+            InitializeHttpClient();
+        }
+
+        /// <summary>
+        /// Creates an account object with associated apiKey, specify alternate gateway address.
+        /// </summary>
+        /// <param name="apiKey">
+        /// The API Key associated with the merchant account on which the transactions are to be performed.
+        /// </param>
+        /// <param name="timeout">HttpClient timeout property</param>
+        /// <exception cref="System.ArgumentNullException">If gatewayUrl is null</exception>
+        /// <exception cref="System.UriFormatException">If gatewayUrl is invalid URI</exception>
+        public Account(string apiKey, TimeSpan timeout)
+        {
+            this.apiKey = apiKey;
+            this.Timeout = timeout;
+            this.gatewayURL = new Uri(Constants.GatewayURL);
+
+            InitializeHttpClient();
         }
 
         /// <summary>
@@ -135,8 +182,31 @@ namespace Clearhaus.Gateway
         public Account(string apiKey, string gatewayURL)
         {
             this.apiKey = apiKey;
-            this.Timeout = new TimeSpan(0, 0, 5);
             this.gatewayURL = new Uri(gatewayURL);
+
+            InitializeHttpClient();
+        }
+
+        /// <summary>
+        /// Creates an account object with associated apiKey, specify alternate gateway address.
+        /// </summary>
+        /// <param name="apiKey">
+        /// The API Key associated with the merchant account on which the transactions are to be performed.
+        /// </param>
+        /// <param name="gatewayURL">
+        /// URL to use as remote Gateway address. Default <c>Constants.GatewayURL</c>.
+        /// <seealso cref="Constants.GatewayTestURL"/>.
+        /// </param>
+        /// <param name="timeout">HttpClient timeout property</param>
+        /// <exception cref="System.ArgumentNullException">If gatewayUrl is null</exception>
+        /// <exception cref="System.UriFormatException">If gatewayUrl is invalid URI</exception>
+        public Account(string apiKey, string gatewayURL, TimeSpan timeout)
+        {
+            this.apiKey = apiKey;
+            this.Timeout = timeout;
+            this.gatewayURL = new Uri(gatewayURL);
+
+            InitializeHttpClient();
         }
 
         /// <summary>
@@ -277,13 +347,8 @@ namespace Clearhaus.Gateway
 
         private RestRequest buildRestRequest(string path, params string[] args)
         {
-            var restRequest = new RestRequest(gatewayURL, apiKey, "");
+            var restRequest = new RestRequest(httpClient);
             restRequest.SetPath(path, args);
-
-            if (Timeout != null)
-            {
-                restRequest.client.Timeout = Timeout;
-            }
 
             return restRequest;
         }
@@ -396,32 +461,23 @@ namespace Clearhaus.Gateway
             string amount,
             string currency,
             Card cc,
-            string PARes,
+            string pares,
             AuthorizationRequestOptions opts)
         {
             var restRequest = buildRestRequest("authorizations/");
 
             restRequest.AddParameter("amount", amount);
             restRequest.AddParameter("currency", currency);
+            restRequest.AddParameters(cc.GetArgs());
 
-            restRequest.AddParameter("card[pan]", cc.pan);
-
-            if (!String.IsNullOrWhiteSpace(cc.csc))
+            if (!string.IsNullOrWhiteSpace(pares))
             {
-                restRequest.AddParameter("card[csc]", cc.csc);
+                restRequest.AddParameter("card[pares]", pares);
             }
-
-            if (!String.IsNullOrWhiteSpace(PARes))
-            {
-                restRequest.AddParameter("card[pares]", PARes);
-            }
-
-            restRequest.AddParameter("card[expire_month]", cc.expireMonth);
-            restRequest.AddParameter("card[expire_year]", cc.expireYear);
 
             if (opts != null)
             {
-                restRequest.AddParameters(opts.GetParameters());
+                restRequest.AddParameters(opts.GetArgs());
             }
 
             return restRequest;
@@ -437,12 +493,11 @@ namespace Clearhaus.Gateway
 
             restRequest.AddParameter("amount", amount);
             restRequest.AddParameter("currency", currency);
-            restRequest.AddParameter("applepay[payment_token]", apInfo.paymentData);
-            restRequest.AddParameter("applepay[symmetric_key]", apInfo.symmetricKey);
+            restRequest.AddParameters(apInfo.GetArgs());
 
             if (opts != null)
             {
-                restRequest.AddParameters(opts.GetParameters());
+                restRequest.AddParameters(opts.GetArgs());
             }
 
             return restRequest;
@@ -452,30 +507,23 @@ namespace Clearhaus.Gateway
             string amount,
             string currency,
             MobilePayOnlineInfo mpoInfo,
+			string pares,
             AuthorizationRequestOptions opts)
         {
             var restRequest = buildRestRequest("authorizations/");
 
             restRequest.AddParameter("amount", amount);
             restRequest.AddParameter("currency", currency);
+            restRequest.AddParameters(mpoInfo.GetArgs());
 
-            restRequest.AddParameter("mobilepayonline[pan]", mpoInfo.pan);
-            restRequest.AddParameter("mobilepayonline[expire_year]", mpoInfo.expireYear);
-            restRequest.AddParameter("mobilepayonline[expire_month]", mpoInfo.expireMonth);
-
-            if (!string.IsNullOrWhiteSpace(mpoInfo.phoneNumber))
+            if (!string.IsNullOrWhiteSpace(pares))
             {
-                restRequest.AddParameter("mobilepayonline[phone_number]", mpoInfo.phoneNumber);
-            }
-
-            if (!string.IsNullOrWhiteSpace(mpoInfo.pares))
-            {
-                restRequest.AddParameter("mobilepayonline[pares]", mpoInfo.pares);
+                restRequest.AddParameter("mobilepayonline[pares]", pares);
             }
 
             if (opts != null)
             {
-                restRequest.AddParameters(opts.GetParameters());
+                restRequest.AddParameters(opts.GetArgs());
             }
 
             return restRequest;
@@ -488,15 +536,15 @@ namespace Clearhaus.Gateway
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
         /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
         /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Required)</param>
-        /// <param name="PARes">3D-Secure result (omittable)</param>
+        /// <param name="pares">3D-Secure result (omittable)</param>
         /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
-        public Authorization Authorize(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
+        public Authorization Authorize(string amount, string currency, Card cc, string pares, AuthorizationRequestOptions opts)
         {
-            using(var restRequest = buildAuthorizeRequest(amount, currency, cc, PARes, opts))
+            using(var restRequest = buildAuthorizeRequest(amount, currency, cc, pares, opts))
             {
                 return POSTtoObject<Authorization>(restRequest);
             }
@@ -508,15 +556,15 @@ namespace Clearhaus.Gateway
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
         /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
         /// <param name="cc">Card to authorize against. <see cref="Clearhaus.Gateway.Card"/> (Required)</param>
-        /// <param name="PARes">3D-Secure result (omittable)</param>
+        /// <param name="pares">3D-Secure result (omittable)</param>
         /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
-        async public Task<Authorization> AuthorizeAsync(string amount, string currency, Card cc, string PARes, AuthorizationRequestOptions opts)
+        async public Task<Authorization> AuthorizeAsync(string amount, string currency, Card cc, string pares, AuthorizationRequestOptions opts)
         {
-            using(var restRequest = buildAuthorizeRequest(amount, currency, cc, PARes, opts))
+            using(var restRequest = buildAuthorizeRequest(amount, currency, cc, pares, opts))
             {
                 return await POSTtoObjectAsync<Authorization>(restRequest);
             }
@@ -570,35 +618,37 @@ namespace Clearhaus.Gateway
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
         /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
         /// <param name="mpoInfo">MobilePay Online payment information (Required)</param>
+        /// <param name="pares">3D-Secure result (omittable)</param>
         /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         /// <remarks>Signing must be enabled for this method to function</remarks>
-        public Authorization Authorize(string amount, string currency, MobilePayOnlineInfo mpoInfo, AuthorizationRequestOptions opts)
+        public Authorization Authorize(string amount, string currency, MobilePayOnlineInfo mpoInfo, string pares, AuthorizationRequestOptions opts)
         {
-            using(var restRequest = buildAuthorizeRequest(amount, currency, mpoInfo, opts))
+            using(var restRequest = buildAuthorizeRequest(amount, currency, mpoInfo, pares, opts))
             {
                 return POSTtoObject<Authorization>(restRequest);
             }
         }
 
         /// <summary>
-        /// <see cref="Authorize(string, string, MobilePayOnlineInfo, AuthorizationRequestOptions)"/>
+        /// <see cref="Authorize(string, string, MobilePayOnlineInfo, string, AuthorizationRequestOptions)"/>
         /// </summary>
         /// <param name="amount">Amount of money to reserve, minor units of <c>currency</c> (Required)</param>
         /// <param name="currency">Currency in which <c>amount</c> is specified (Required)</param>
         /// <param name="mpoInfo">MobilePay Online payment information (Required)</param>
+        /// <param name="pares">3D-Secure result (omittable)</param>
         /// <param name="opts">Optional parameters for authorizations or null (Omittable)</param>
         /// <exception cref="ClrhsNetException">Network error communicating with gateway</exception>
         /// <exception cref="ClrhsAuthException">Thrown if APIKey is invalid</exception>
         /// <exception cref="ClrhsGatewayException">Thrown if gateway responds with internal server error</exception>
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         /// <remarks>Signing must be enabled for this method to function</remarks>
-        async public Task<Authorization> AuthorizeAsync(string amount, string currency, MobilePayOnlineInfo mpoInfo, AuthorizationRequestOptions opts)
+        async public Task<Authorization> AuthorizeAsync(string amount, string currency, MobilePayOnlineInfo mpoInfo, string pares, AuthorizationRequestOptions opts)
         {
-            using(var restRequest = buildAuthorizeRequest(amount, currency, mpoInfo, opts))
+            using(var restRequest = buildAuthorizeRequest(amount, currency, mpoInfo, pares, opts))
             {
                 return await POSTtoObjectAsync<Authorization>(restRequest);
             }
@@ -648,6 +698,7 @@ namespace Clearhaus.Gateway
         {
             // Don't dispose restRequest, let caller do that.
             var restRequest = buildRestRequest("authorizations/{0}/captures", id);
+
             if (!string.IsNullOrWhiteSpace(textOnStatement))
             {
                 restRequest.AddParameter("text_on_statement", textOnStatement);
@@ -770,13 +821,7 @@ namespace Clearhaus.Gateway
         {
             // Don't dispose restRequest, let caller handle that
             var restRequest = buildRestRequest("/cards");
-            restRequest.AddParameter("card[pan]", cc.pan);
-            restRequest.AddParameter("card[expire_month]", cc.expireMonth);
-            restRequest.AddParameter("card[expire_year]", cc.expireYear);
-            if (!string.IsNullOrWhiteSpace(cc.csc))
-            {
-                restRequest.AddParameter("card[csc]", cc.csc);
-            }
+            restRequest.AddParameters(cc.GetArgs());
 
             return restRequest;
         }
@@ -886,6 +931,37 @@ namespace Clearhaus.Gateway
 
             var header = string.Format("{0} RS256-hex {1}", signingAPIKey, hexEncoded);
             request.AddHeader("Signature", header);
+        }
+
+
+        /**** IDisposable implementation ****/
+
+        /// <summary>IDisposable Interface</summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>IDisposable Interface</summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) {
+                return;
+            }
+
+            if (disposing) {
+            }
+
+            if (httpClient != null) { httpClient.Dispose(); }
+
+            disposed = true;
+        }
+
+        /// <summary>Disposes unmanaged objects.</summary>
+        ~Account()
+        {
+            Dispose(false);
         }
     }
 }

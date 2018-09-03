@@ -1,4 +1,7 @@
+using System;
 using Xunit;
+
+using Clearhaus.Gateway.Transaction;
 
 namespace Clearhaus.Gateway.Test
 {
@@ -101,7 +104,7 @@ namespace Clearhaus.Gateway.Test
         {
             var account = Util.GetSigningStagingAccount();
             var mpoInfo = Util.GetStagingMPOInfo();
-            var auth = account.Authorize("100", "DKK", mpoInfo, null);
+            var auth = account.Authorize("100", "DKK", mpoInfo, null, null);
 
             if (!auth.IsSuccess())
             {
@@ -118,7 +121,9 @@ namespace Clearhaus.Gateway.Test
             var account = Util.GetSigningStagingAccount();
             var mpoInfo = Util.GetStagingMPOInfo();
             mpoInfo.phoneNumber = "12445678";
-            var auth = account.Authorize("100", "DKK", mpoInfo, null);
+
+            Gateway.Transaction.Authorization auth;
+            auth = account.Authorize("100", "DKK", mpoInfo, null, null);
 
             if (!auth.IsSuccess())
             {
@@ -134,8 +139,9 @@ namespace Clearhaus.Gateway.Test
         {
             var account = Util.GetSigningStagingAccount();
             var mpoInfo = Util.GetStagingMPOInfo();
-            mpoInfo.pares = Util.GetPARes();
-            var auth = account.Authorize("100", "DKK", mpoInfo, null);
+            var pares = Util.GetPARes();
+
+            var auth = account.Authorize("100", "DKK", mpoInfo, pares, null);
 
             if (!auth.IsSuccess())
             {
@@ -144,6 +150,70 @@ namespace Clearhaus.Gateway.Test
 
             Assert.NotNull(auth);
             Assert.True(auth.IsSuccess());
+        }
+
+
+        /**********************************/
+        /**** Account Example testcase ****/
+        /**********************************/
+
+
+        [Fact]
+        public void TestExample()
+        {
+            var apiKey = Util.GetValidAPIKey();
+            var card = Util.GetStagingCard();
+
+            // The `Account` destructor disposes of the HttpClient,
+            // it is also possible to call `#Dispose` manually.
+            var account = new Account(apiKey);
+
+            var authOptions = new AuthorizationRequestOptions
+            {
+                recurring = true,
+                reference = "sdg7SF12KJHjj"
+            };
+
+            Authorization myAuth;
+            try
+            {
+                myAuth = account.Authorize("100", "DKK", card, null, authOptions);
+
+                Assert.True(myAuth.IsSuccess());
+                if (!myAuth.IsSuccess())
+                {
+                    // The statuscode returned implies that an error occurred.
+                    Console.WriteLine(myAuth.status.message);
+                }
+            }
+            catch(ClrhsNetException e)
+            {
+                // Failure connecting to clearhaus.
+                // You should retry this.
+                Console.WriteLine(e.Message);
+                return;
+            }
+            catch(ClrhsAuthException e)
+            {
+                // ApiKey was invalid
+                // You need to change the apiKey.
+                // This can be avoided by checking the key first:
+                // account.ValidAPIKey() == true
+                Console.WriteLine(e.Message);
+                return;
+            }
+            catch(ClrhsGatewayException e)
+            {
+                // Something was funky with the Clearhaus gateway
+                // You could retry this, but maybe give it a few seconds.
+                Console.WriteLine(e.Message);
+                return;
+            }
+            catch(ClrhsException e)
+            {
+                // Last effort exception
+                System.Console.WriteLine(e.Message);
+            }
         }
     }
 }

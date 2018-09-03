@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Clearhaus.Util;
@@ -10,84 +11,106 @@ using Newtonsoft.Json;
 namespace Clearhaus.MPI
 {
     /// <summary>
-    /// MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as a MPI service.
+    /// MPI is used adding 3D-Secure to a payment transaction flow. Is uses https://3dsecure.io as an MPI service.
     /// </summary>
     /// <example>
     /// <code lang="C#">
     /// using Clearhaus.MPI;
     /// using Clearhaus.MPI.Builder;
-    /// using Clearhaus.MPI.Representers;
     ///
-    /// string apiKey = "SOME UUID APIKEY";
+    /// public static void main()
+    /// {
+    ///         string apiKey = "SOME UUID APIKEY";
     ///
-    /// var mpiAccount = new MPI(apiKey);
+    ///         // Can be disposed by `#Dispose()` or will be GC'd automatically.
+    ///         var mpiAccount = new MPI(apiKey);
     ///
-    /// var builder = new EnrollCheckBuilder {
-    ///     amount              = "100",
-    ///     currency            = "DKK",
-    ///     orderID             = "SOME ID",
-    ///     cardholderIP        = "1.1.1.1",
-    ///     cardNumber          = "SOME PAN",
-    ///     cardExpireMonth     = "04",
-    ///     cardExpireYear      = "2030",
-    ///     merchantAcquirerBin = "SOME BIN",
-    ///     merchantCountry     = "DK",
-    ///     merchantID          = "SOME ID",
-    ///     merchantName        = "MyMerchant",
-    ///     merchantUrl         = "http://mymerchant.com"
-    /// };
+    ///         var builder = new EnrollCheckBuilder {
+    ///             amount              = "100",
+    ///             currency            = "DKK",
+    ///             orderID             = "SOME ID",
+    ///             cardholderIP        = "1.1.1.1",
+    ///             cardNumber          = "SOME PAN",
+    ///             cardExpireMonth     = "04",
+    ///             cardExpireYear      = "2030",
+    ///             merchantAcquirerBin = "SOME BIN",
+    ///             merchantCountry     = "DK",
+    ///             merchantID          = "SOME ID",
+    ///             merchantName        = "MyMerchant",
+    ///             merchantUrl         = "http://mymerchant.com"
+    ///         };
     ///
-    /// EnrollmentStatus response;
-    /// try
-    /// {
-    ///     response = mpiAccount.EnrollCheck(builder);
-    /// }
-    /// catch(ClrhsNetException e)
-    /// {
-    ///     // Handle
-    /// }
-    /// catch(ClrhsGatewayException e)
-    /// {
-    ///     // Something is wrong on server-side
-    /// }
-    /// catch(ClrhsAuthException e)
-    /// {
-    ///     // Invalid APIKey. This should not happen if you have tested your
-    ///     // key.
-    /// }
+    ///         EnrollmentStatus response;
+    ///         try
+    ///         {
+    ///             response = mpiAccount.EnrollCheck(builder);
+    ///         }
+    ///         catch(ClrhsNetException e)
+    ///         {
+    ///             // Handle
+    ///         }
+    ///         catch(ClrhsGatewayException e)
+    ///         {
+    ///             // Something is wrong on server-side
+    ///         }
+    ///         catch(ClrhsAuthException e)
+    ///         {
+    ///             // Invalid APIKey. This should not happen if you have tested your
+    ///             // key.
+    ///         }
+    ///         catch(ClrhsException e)
+    ///         {
+    ///             // Last effort exception
+    ///         }
     ///
-    /// if (response.enrolled == "Y")
-    /// {
-    ///     // Continue 3D-Secure procedure
+    ///         if (response.enrolled == "Y")
+    ///         {
+    ///             // Continue 3D-Secure procedure
+    ///         }
     /// }
     /// </code>
     /// </example>
     public class MPI
     {
-        private string apikey;
+        private string apiKey;
         private Uri mpiUrl;
 
-        /// <summary>
-        /// Temporary documentation
-        /// </summary>
-        /// <param name="apikey">UUID representing your 3dsecure.io account</param>
-        public MPI(string apikey)
-        {
-            this.apikey = apikey;
-            this.mpiUrl = new Uri(Constants.MPIURL);
-        }
+        private HttpClient httpClient;
+
+        private bool disposed;
+
+        /// <summary>The default timespan used for HttpClient, 40s)</summary>
+        public readonly TimeSpan timeout = new TimeSpan(0, 0, 40);
 
         /// <summary>
         /// Temporary documentation
         /// </summary>
-        /// <param name="apikey">UUID representing your 3dsecure.io account</param>
+        /// <param name="apiKey">UUID representing your 3dsecure.io account</param>
+        public MPI(string apiKey)
+        {
+            this.apiKey = apiKey;
+            this.mpiUrl = new Uri(Constants.MPIURL);
+
+            InitializeHttpClient();
+        }
+
+
+        /**** CONSTRUCTORS ****/
+
+
+        /// <summary>
+        /// Temporary documentation
+        /// </summary>
+        /// <param name="apiKey">UUID representing your 3dsecure.io account</param>
         /// <param name="mpiUrl">URL to use as API mpiUrl</param>
         /// <exception cref="System.ArgumentNullException">If mpiUrl is null</exception>
         /// <exception cref="System.UriFormatException">If mpiUrl is invalid URI</exception>
-        public MPI(string apikey, string mpiUrl)
+        public MPI(string apiKey, string mpiUrl)
         {
-            this.apikey = apikey;
+            this.apiKey = apiKey;
             this.mpiUrl = new Uri(mpiUrl);
+
+            InitializeHttpClient();
         }
 
         /// <summary>
@@ -101,7 +124,32 @@ namespace Clearhaus.MPI
         public void SetEndpoint(string mpiUrl)
         {
             this.mpiUrl = new Uri(mpiUrl);
+
+            InitializeHttpClient();
         }
+
+
+        /**** PRIVATE METHODS ****/
+
+
+        private void InitializeHttpClient()
+        {
+            var clientHandler = new HttpClientHandler {
+                Credentials = new System.Net.NetworkCredential(this.apiKey, "")
+            };
+
+            // Tell it to dispose the HttpClientHandler, so we don't need to.
+            this.httpClient = new HttpClient(clientHandler, true) {
+                BaseAddress = this.mpiUrl,
+            };
+
+            if (this.timeout != null)
+            {
+                httpClient.Timeout = this.timeout;
+            }
+        }
+
+        /**** PUBLIC METHODS ****/
 
         /// <summary>
         /// Query the MPI service, returning <c>PARes</c> and <c>ACSUrl</c> to allow continuing the 3DS flow.
@@ -115,7 +163,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public EnrollmentStatus EnrollCheck(EnrollCheckBuilder builder)
         {
-            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            using(var restRequest = new RestRequest(this.httpClient))
             {
                 restRequest.SetPath("/enrolled");
 
@@ -142,7 +190,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<EnrollmentStatus> EnrollCheckAsync(EnrollCheckBuilder builder)
         {
-            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            using(var restRequest = new RestRequest(this.httpClient))
             {
                 restRequest.SetPath("/enrolled");
 
@@ -169,7 +217,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         public CheckResponse CheckPARes(string pares)
         {
-            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            using(var restRequest = new RestRequest(this.httpClient))
             {
                 restRequest.SetPath("/check");
                 restRequest.AddParameter("pares", pares);
@@ -195,7 +243,7 @@ namespace Clearhaus.MPI
         /// <exception cref="ClrhsException">Unexpected connection error</exception>
         async public Task<CheckResponse> CheckPAResAsync(string pares)
         {
-            using(var restRequest = new RestRequest(this.mpiUrl, this.apikey, ""))
+            using(var restRequest = new RestRequest(this.httpClient))
             {
                 restRequest.SetPath("/check");
                 restRequest.AddParameter("pares", pares);
@@ -206,6 +254,37 @@ namespace Clearhaus.MPI
 
                 return parsedResponse;
             }
+        }
+
+
+        /**** IDisposable implementation ****/
+
+        /// <summary>IDisposable Interface</summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>IDisposable Interface</summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) {
+                return;
+            }
+
+            if (disposing) {
+            }
+
+            if (httpClient != null) { httpClient.Dispose(); }
+
+            disposed = true;
+        }
+
+        /// <summary>Disposes unmanaged objects.</summary>
+        ~MPI()
+        {
+            Dispose(false);
         }
     }
 }

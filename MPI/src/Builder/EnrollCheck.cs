@@ -1,24 +1,9 @@
-using System;
-using System.Reflection;
-using System.Collections.Generic;
-
+using Clearhaus.Util;
 
 namespace Clearhaus.MPI.Builder
 {
-
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    internal class ArgName : Attribute
-    {
-        public string name;
-
-        public ArgName(string name)
-        {
-            this.name = name;
-        }
-    }
-
     /// <summary>Contains information for performing 3D-Secure flow</summary>
-    public class EnrollCheckBuilder
+    public class EnrollCheckBuilder : RestParameters
     {
         /// <summary>Amount of currency in transaction</summary>
         public string amount;
@@ -65,46 +50,5 @@ namespace Clearhaus.MPI.Builder
         /// <summary>URL of merchant page</summary>
         [ArgName("merchant[url]")]
         public string merchantUrl;
-
-        private string GetFieldName(FieldInfo info)
-        {
-                var res = (ArgName[])info.GetCustomAttributes(typeof(ArgName), false);
-                if (res.Length > 0)
-                {
-                    var attr = res[0];
-                    return attr.name;
-                }
-
-                return info.Name;
-        }
-
-        /// <summary>Extract object data as a list, for creating request.</summary>
-        public IList<KeyValuePair<string, string>> GetArgs()
-        {
-            var list = new List<KeyValuePair<string, string>>();
-
-            // Iterate through fields, extracting possible argname supplied.
-            var fields = this.GetType().GetFields();
-            foreach (var info in fields)
-            {
-                var key = GetFieldName(info);
-                var val = Convert.ChangeType(info.GetValue(this), info.FieldType);
-
-                /*
-                if (string.IsNullOrWhiteSpace(val))
-                {
-                    throw new Exception(String.Format("Value '{0}' must be set", info.Name));
-                }
-                */
-
-                if (val is string && !string.IsNullOrWhiteSpace((string)val))
-                {
-                    var pair = new KeyValuePair<string, string>(key, (string)val);
-                    list.Add(pair);
-                }
-            }
-
-            return list;
-        }
     }
 }

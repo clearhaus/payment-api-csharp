@@ -18,37 +18,18 @@ namespace Clearhaus.Util
         private FormUrlEncodedContent content;
         public HttpClient client;
         private HttpClientHandler clientHandler;
+        private bool responsibleForClient = false;
 
-        // Support username/password is for Http Basic auth
-        public RestRequest(Uri urlbase, string username, string password)
+        private static HttpStatusCode[] acceptedResponseCodes = new HttpStatusCode[]{
+            HttpStatusCode.OK,
+            HttpStatusCode.Created,
+            HttpStatusCode.BadRequest,
+        };
+
+        public RestRequest(HttpClient client)
         {
             bodyParameters = new List<KeyValuePair<string, string>>();
-
-            clientHandler = new HttpClientHandler {
-                Credentials = new System.Net.NetworkCredential(username, password)
-            };
-
-            client = new HttpClient(clientHandler) {
-                BaseAddress = urlbase,
-            };
-        }
-
-        public void SetPath(string url, params string[] list)
-        {
-            this.url = string.Format(url, list);
-        }
-
-        public void AddParameter(string key, string val)
-        {
-            bodyParameters.Add(new KeyValuePair<string, string>(key, val));
-        }
-
-        public void AddParameters(IList<KeyValuePair<string, string>> l)
-        {
-            foreach (var kv in l)
-            {
-                bodyParameters.Add(kv);
-            }
+            this.client = client;
         }
 
         /**
@@ -69,9 +50,8 @@ namespace Clearhaus.Util
             if (disposing) {
             }
 
-            if (client        != null) { client.Dispose(); }
-            if (content       != null) { content.Dispose(); }
-            if (clientHandler != null) { clientHandler.Dispose(); }
+            if (responsibleForClient && client != null) { client.Dispose(); }
+            if (content != null) { content.Dispose(); }
 
             disposed = true;
         }
@@ -81,12 +61,23 @@ namespace Clearhaus.Util
             Dispose(false);
         }
 
-        private static HttpStatusCode[] acceptedResponseCodes = new HttpStatusCode[]{
-            HttpStatusCode.OK,
-            HttpStatusCode.Created,
-            HttpStatusCode.BadRequest,
-        };
+        public void SetPath(string url, params string[] list)
+        {
+            this.url = string.Format(url, list);
+        }
 
+        public void AddParameter(string key, string val)
+        {
+            bodyParameters.Add(new KeyValuePair<string, string>(key, val));
+        }
+
+        public void AddParameters(IList<KeyValuePair<string, string>> l)
+        {
+            foreach (var kv in l)
+            {
+                bodyParameters.Add(kv);
+            }
+        }
 
         public void AddHeader(string key, string val)
         {

@@ -1,16 +1,16 @@
+using Clearhaus.Util;
+
 namespace Clearhaus.Gateway
 {
     /// <summary>
     /// Represents a credit card
     /// </summary>
-    public class Card
+    public class Card : RestParameters
     {
         /// <summary>
         /// Emtpy constructor
         /// </summary>
-        public Card()
-        {
-        }
+        public Card() {}
 
         /// <summary>
         /// Construct a new card
@@ -43,21 +43,26 @@ namespace Clearhaus.Gateway
         /// <summary>
         /// Primary Account Number
         /// </summary>
+        [ArgName("card[pan]")]
         public string pan;
 
         /// <summary>
         /// Month of card expiry
         /// </summary>
+        [ArgName("card[expire_month]")]
         public string expireMonth;
 
         /// <summary>
         /// Year of card expiry
         /// </summary>
+        [ArgName("card[expire_year]")]
         public string expireYear;
 
         /// <summary>
-        /// Card security code
+        /// Card security code (Optional, see documentation)
         /// </summary>
+        [Optional]
+        [ArgName("card[csc]")]
         public string csc;
     }
 }

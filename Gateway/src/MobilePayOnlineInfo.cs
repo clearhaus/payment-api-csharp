@@ -1,21 +1,25 @@
+using Clearhaus.Util;
+
 namespace Clearhaus.Gateway
 {
     /// <summary>Represents MPO information needed for a transaction</summary>
-    public class MobilePayOnlineInfo
+    public class MobilePayOnlineInfo : RestParameters
     {
         /// <summary>Primary Account Number of card</summary>
-        public string pan {get; set;}
+        [ArgName("mobilepayonline[pan]")]
+        public string pan;
 
         /// <summary>Month of card expiry</summary>
-        public string expireMonth {get; set;}
+        [ArgName("mobilepayonline[expire_month]")]
+        public string expireMonth;
 
         /// <summary>Year of card expiry</summary>
-        public string expireYear {get; set;}
+        [ArgName("mobilepayonline[expire_year]")]
+        public string expireYear;
 
         /// <summary>Phone number (optional)</summary>
-        public string phoneNumber {get; set;}
-
-        /// <summary>3D-Secure PARes (optional)</summary>
-        public string pares {get; set;}
+        [Optional]
+        [ArgName("mobilepayonline[phone_number]")]
+        public string phoneNumber;
     }
 }
