@@ -2,7 +2,7 @@ version: 2
 jobs:
     docker:
         image: microsoft/dotnet:latest
-    test:
+    build:
         steps:
             - checkout
             - run:
@@ -35,4 +35,4 @@ workflows:
                         only:
                             - master
         jobs:
-            - test
+            - build
