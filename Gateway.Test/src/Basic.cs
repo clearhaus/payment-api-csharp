@@ -106,13 +106,8 @@ namespace Clearhaus.Gateway.Test
             var mpoInfo = Util.GetStagingMPOInfo();
             var auth = account.Authorize("100", "DKK", mpoInfo, null, null);
 
-            if (!auth.IsSuccess())
-            {
-                System.Console.WriteLine(auth.status.message);
-            }
-
             Assert.NotNull(auth);
-            Assert.True(auth.IsSuccess());
+            Assert.True(auth.IsSuccess(), auth.status.message);
         }
 
         [Fact]
@@ -125,13 +120,8 @@ namespace Clearhaus.Gateway.Test
             Gateway.Transaction.Authorization auth;
             auth = account.Authorize("100", "DKK", mpoInfo, null, null);
 
-            if (!auth.IsSuccess())
-            {
-                System.Console.WriteLine(auth.status.message);
-            }
-
             Assert.NotNull(auth);
-            Assert.True(auth.IsSuccess());
+            Assert.True(auth.IsSuccess(), auth.status.message);
         }
 
         [Fact(Skip="This is not live yet")]
@@ -143,13 +133,8 @@ namespace Clearhaus.Gateway.Test
 
             var auth = account.Authorize("100", "DKK", mpoInfo, pares, null);
 
-            if (!auth.IsSuccess())
-            {
-                System.Console.WriteLine(auth.status.message);
-            }
-
             Assert.NotNull(auth);
-            Assert.True(auth.IsSuccess());
+            Assert.True(auth.IsSuccess(), auth.status.message);
         }
 
 
@@ -161,12 +146,13 @@ namespace Clearhaus.Gateway.Test
         [Fact]
         public void TestExample()
         {
+            string error = null;
             var apiKey = Util.GetValidAPIKey();
             var card = Util.GetStagingCard();
 
             // The `Account` destructor disposes of the HttpClient,
             // it is also possible to call `#Dispose` manually.
-            var account = new Account(apiKey);
+            var account = new Account(apiKey, Constants.GatewayTestURL);
 
             var authOptions = new AuthorizationRequestOptions
             {
@@ -179,19 +165,13 @@ namespace Clearhaus.Gateway.Test
             {
                 myAuth = account.Authorize("100", "DKK", card, null, authOptions);
 
-                Assert.True(myAuth.IsSuccess());
-                if (!myAuth.IsSuccess())
-                {
-                    // The statuscode returned implies that an error occurred.
-                    Console.WriteLine(myAuth.status.message);
-                }
+                Assert.True(myAuth.IsSuccess(), myAuth.status.message);
             }
             catch(ClrhsNetException e)
             {
                 // Failure connecting to clearhaus.
                 // You should retry this.
-                Console.WriteLine(e.Message);
-                return;
+                error = e.Message;
             }
             catch(ClrhsAuthException e)
             {
@@ -199,21 +179,21 @@ namespace Clearhaus.Gateway.Test
                 // You need to change the apiKey.
                 // This can be avoided by checking the key first:
                 // account.ValidAPIKey() == true
-                Console.WriteLine(e.Message);
-                return;
+                error = e.Message;
             }
             catch(ClrhsGatewayException e)
             {
                 // Something was funky with the Clearhaus gateway
                 // You could retry this, but maybe give it a few seconds.
-                Console.WriteLine(e.Message);
-                return;
+                error = e.Message;
             }
             catch(ClrhsException e)
             {
                 // Last effort exception
-                System.Console.WriteLine(e.Message);
+                error = e.Message;
             }
+
+            Assert.True(String.IsNullOrWhiteSpace(error), error);
         }
     }
 }
