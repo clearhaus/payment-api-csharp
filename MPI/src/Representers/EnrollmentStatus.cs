@@ -2,6 +2,16 @@ using Newtonsoft.Json;
 
 namespace Clearhaus.MPI.Representers
 {
+    /// <summary>Error class for  the MPI service</summary>
+    public class Error
+    {
+        /// <summary>No information</summary>
+        public string detail;
+
+        /// <summary>Error message</summary>
+        public string message;
+    }
+
     /// <summary>Response of EnrollCheck request</summary>
     public class EnrollmentStatus
     {
@@ -19,6 +29,6 @@ namespace Clearhaus.MPI.Representers
         public string eci;
 
         /// <summary>Any errors</summary>
-        public string error;
+        public Error error;
     }
 }

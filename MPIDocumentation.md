@@ -35,6 +35,9 @@
   - [enrolled](#F-Clearhaus-MPI-Representers-EnrollmentStatus-enrolled 'Clearhaus.MPI.Representers.EnrollmentStatus.enrolled')
   - [error](#F-Clearhaus-MPI-Representers-EnrollmentStatus-error 'Clearhaus.MPI.Representers.EnrollmentStatus.error')
   - [pareq](#F-Clearhaus-MPI-Representers-EnrollmentStatus-pareq 'Clearhaus.MPI.Representers.EnrollmentStatus.pareq')
+- [Error](#T-Clearhaus-MPI-Representers-Error 'Clearhaus.MPI.Representers.Error')
+  - [detail](#F-Clearhaus-MPI-Representers-Error-detail 'Clearhaus.MPI.Representers.Error.detail')
+  - [message](#F-Clearhaus-MPI-Representers-Error-message 'Clearhaus.MPI.Representers.Error.message')
 - [MPI](#T-Clearhaus-MPI-MPI 'Clearhaus.MPI.MPI')
   - [#ctor(apiKey)](#M-Clearhaus-MPI-MPI-#ctor-System-String- 'Clearhaus.MPI.MPI.#ctor(System.String)')
   - [#ctor(apiKey,mpiUrl)](#M-Clearhaus-MPI-MPI-#ctor-System-String,System-String- 'Clearhaus.MPI.MPI.#ctor(System.String,System.String)')
@@ -293,6 +296,31 @@ Any errors
 ##### Summary
 
 `PAReq`to forward to `acsUrl`
+
+<a name='T-Clearhaus-MPI-Representers-Error'></a>
+## Error `type`
+
+##### Namespace
+
+Clearhaus.MPI.Representers
+
+##### Summary
+
+Error class for  the MPI service
+
+<a name='F-Clearhaus-MPI-Representers-Error-detail'></a>
+### detail `constants`
+
+##### Summary
+
+No information
+
+<a name='F-Clearhaus-MPI-Representers-Error-message'></a>
+### message `constants`
+
+##### Summary
+
+Error message
 
 <a name='T-Clearhaus-MPI-MPI'></a>
 ## MPI `type`
