@@ -15,6 +15,7 @@ jobs:
               libmono-system-xml-linq4.0-cil
         - run:
             command: |
+              IFS= export RSAKEY=$(echo $RSAKEYBASE64 | base64 --decode)
               cd Gateway.Test
               dotnet restore
               dotnet test
