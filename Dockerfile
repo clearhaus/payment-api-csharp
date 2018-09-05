@@ -8,4 +8,3 @@ RUN apt-get update && \
         libmono-system-core4.0-cil \
         libmono-system-xml-linq4.0-cil && \
     rm -rf /var/lib/apt/lists/*
-
