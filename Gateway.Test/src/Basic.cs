@@ -124,7 +124,7 @@ namespace Clearhaus.Gateway.Test
             Assert.True(auth.IsSuccess(), auth.status.message);
         }
 
-        [Fact(Skip="This is not live yet")]
+        [Fact]
         public void ItCreatesMobilePayOnlineAuthorizationWithPARes()
         {
             var account = Util.GetSigningStagingAccount();
@@ -134,7 +134,8 @@ namespace Clearhaus.Gateway.Test
             var auth = account.Authorize("100", "DKK", mpoInfo, pares, null);
 
             Assert.NotNull(auth);
-            Assert.True(auth.IsSuccess(), auth.status.message);
+            Assert.True(!auth.IsSuccess());
+            Assert.True(auth.status.message == "3-D Secure problem", auth.status.message);
         }
 
 
