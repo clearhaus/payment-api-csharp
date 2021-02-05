@@ -21,16 +21,6 @@ jobs:
 
 workflows:
   version: 2
-  daily:
-    triggers:
-      - schedule:
-          cron: "0 8 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - build
   test:
     jobs:
       - build
